@@ -1,0 +1,6 @@
+// use this file for Wordpress-specific styling
+// so that other .scss files can be updated from Unwritten Future HTML framework as necessary
+
+.admin-bar.menu-mobile #navigation { top: 32px; }
+.admin-bar.menu-mobile #navigation .main-menu > ul { padding-top: 72px; }
+.admin-bar.menu-mobile #navigation .main-menu ul li.menu-dismiss { top: 47px; }

@@ -1,0 +1,78 @@
+// the following are all color and font definitions in screen.css
+// NOTE: variables will only work if you include (DO NOT MODIFY) the master variables file:
+// @import "variables";
+// or define variables in this file, or create a _child-variables.scss file and import it
+
+
+
+/**
+ * 1. from _elements.scss
+ *
+
+body { color: $base-text; font: 93.75%/1.6em $sans-serif; }
+input, select, textarea { font-family: $sans-serif; color: $base-text; }
+legend { font: 1.3334em $sans-serif; color: $base-text; }
+
+a:link { color: $link-blue; }
+a:visited { color: $link-blue; }
+.no-touch a:hover { color: $link-red; }
+a:active { color: $link-blue; }
+
+input, select, textarea { border-color: $light-gray; }
+input:focus, select:focus, textarea:focus { border-color: $base-text; }
+input[type="radio"] { @include border-radius(8px); }
+input[type="checkbox"]:checked, input[type="checkbox"]:disabled:checked,
+input[type="radio"]:checked, input[type="radio"]:disabled:checked {
+	background-color: $link-blue;
+}
+fieldset { border-color: $light-gray; }
+legend { border-color: $light-gray; background-color: $very-light-gray; }
+input[type="submit"], button, a.button {
+  background-color: $very-dark-gray; color: #fff;
+}
+.no-touch input[type="submit"]:hover, .no-touch button:hover, .no-touch a.button:hover {
+  background-color: $dark-gray; color: #fff;
+}
+.navigation-icon { fill: $base-text; }
+
+*/
+
+
+
+/**
+ * 2. from _structure.scss
+ *
+ 
+.chromeframe { background-color: $light-gray; color: $base-text; }
+.messages { border-color: $light-gray; }
+
+*/
+
+
+
+/**
+ * 3. from _navigation.scss
+ *
+
+.js #navigation .main-menu > ul { background-color: $very-light-gray; }
+.js #navigation .main-menu ul li .menu-toggle.closed { border-top-color: $very-dark-gray; }
+.js #navigation .main-menu ul li .menu-toggle.open { border-bottom-color: $very-dark-gray; }
+.menu-mobile #navigation .main-menu ul li { border-bottom-color: $light-gray; }
+.menu-full #navigation .main-menu ul ul { background-color: $very-light-gray; }
+
+*/
+
+
+
+/**
+ * 4. from _modals.scss
+ *
+
+#modals-wrapper { background-color: rgba(255, 255, 255, 0.8); }
+#modals .modal > h2 { background-color: $light-gray; }
+#modals .modal > *:not(h2) { border-bottom-color: $light-gray; }
+@media screen and (min-width: 768px) {
+	#modals .modal > *:not(h2) { border-color: $light-gray; }
+}
+
+*/
