@@ -90,7 +90,7 @@ global $uwf_options, $uwf_js_options;
 $uwf_options = array(
 	
 	// for php
-	'logo_url' => '',
+	'logo_url' => get_template_directory_uri() . '/images/logo.png',
 	'navigation_title' => 'Navigation',
 	'footer_cols' => 3,
 	'google_fonts' => '',
@@ -245,7 +245,7 @@ function uwf_widgets_init() {
 	register_sidebar( array(
 		'name'          => __( 'Utility Widget Area', 'uwf' ),
 		'id'            => 'utility',
-		'description'   => __( 'Appears just above the footer on mobile, on iPads and larger widgets can be placed using absolute positions anywhere on the site (requires custom css in theme). Generally used to place secondary or utility menus in upper right-hand corner', 'uwf' ),
+		'description'   => __( 'Appears just above the footer on mobile, on iPads and larger devices is placed in upper right-hand corner using absolute positioning', 'uwf' ),
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
 		'after_widget'  => '</aside>',
 		'before_title'  => '<h2 class="widget-title">',
@@ -403,8 +403,15 @@ function uwf_scripts() {
 		'onThisPageNav',
 		'onThisPageMinimumSections',
 	);
+	$options_to_pass_boolean = array(
+		'validateForms',
+		'fixFooter',
+		'shortenLinks',
+		'externalLinks',
+	);
 	foreach ($options_to_pass as $option_key) {
 		$uwf_js_options[$option_key] = isset($uwf_options[$option_key]) ? $uwf_options[$option_key] : '';
+		if (in_array($option_key, $options_to_pass_boolean)) { $uwf_js_options[$option_key] = (bool) $uwf_js_options[$option_key]; }
 	}
 	
 	// localize text for javascript
@@ -811,83 +818,87 @@ function uwf_theme_options_page() {
 	</td>
 	</tr>
 
-	<tr valign="top"><th scope="row"><label for="navigation_title" style="width: 8em; display: inline-block;">Navigation Title</label></th>
-	<td>
-	<input id="navigation_title" name="uwf_options[navigation_title]" type="text" value="<?php  esc_attr_e($settings['navigation_title']); ?>" />
-	</td>
-	</tr>
-
-	<tr valign="top"><th scope="row"><label for="footer_cols">Columns in Footer Widget Area</label></th>
-	<td>
-	<select id="footer_cols" name="uwf_options[footer_cols]">
-		<option value="1" <?php selected( $settings['footer_cols'], 1 ); ?>>1</option>
-		<option value="2" <?php selected( $settings['footer_cols'], 2 ); ?>>2</option>
-		<option value="3" <?php selected( $settings['footer_cols'], 3 ); ?>>3</option>
-		<option value="4" <?php selected( $settings['footer_cols'], 4 ); ?>>4</option>
-		<!--<option value="flex" <?php selected( $settings['footer_cols'], 'flex' ); ?>>flex</option>-->
-	</select>
-	</td>
-	</tr>
-
 	<tr valign="top">
-		<th scope="row"><label for="google_fonts">Google Fonts</label></th>
+		<th scope="row">Display</th>
 		<td>
-			<input id="google_fonts" name="uwf_options[google_fonts]" type="text" value="<?php  esc_attr_e($settings['google_fonts']); ?>" />
-			<span class="dashicons dashicons-editor-help" title="More information available in the help dropdown"></span>
+			<p><label for="google_fonts">Google Fonts</label> <input id="google_fonts" name="uwf_options[google_fonts]" type="text" value="<?php  esc_attr_e($settings['google_fonts']); ?>" />
+			<span class="dashicons dashicons-editor-help" title="More information available in the help dropdown"></span></p>
+			<p></p>
+		</td>
+	</tr>
+	
+	<tr valign="top">
+		<th scope="row">Main Menu</th>
+		<td>
+			<p><label for="navigation_title">Navigation Title</label> <input id="navigation_title" name="uwf_options[navigation_title]" type="text" value="<?php  esc_attr_e($settings['navigation_title']); ?>" /></p>
+			<p><label for="mobileBreakPoint">Mobile break point (in pixels):</label>
+				<input type="text" id="mobileBreakPoint" name="uwf_options[mobileBreakPoint]" value="<?php esc_attr_e($settings['mobileBreakPoint']); ?>" /></p>
+			<p><label for="mobileMenuDirection">Mobile menu direction:</label>
+				<select id="mobileMenuDirection" name="uwf_options[mobileMenuDirection]">
+					<option value="left" <?php selected( $settings['mobileMenuDirection'], 'left' ); ?>>left</option>
+					<option value="right" <?php selected( $settings['mobileMenuDirection'], 'right' ); ?>>right</option>
+				</select>
+			</p>
 		</td>
 	</tr>
 
-	<tr valign="top">
-		<th scope="row"><label for="custom_css">Custom CSS</label></th>
-		<td><textarea id="custom_css" name="uwf_options[custom_css]"><?php esc_attr_e($settings['custom_css']); ?></textarea></td>
+	<tr valign="top"><th scope="row">Forms</th>
+		<td>
+			<p><input type="checkbox" id="validateForms" name="uwf_options[validateForms]" value="1" <?php checked( true, $settings['validateForms'] ); ?> /> <label for="validateForms">Validate all forms by default</label></p>
+		</td>
 	</tr>
-
-	<tr valign="top"><th scope="row">Javascript Options</th>
-
-	<td>
-	<p><input type="checkbox" id="validateForms" name="uwf_options[validateForms]" value="1" <?php checked( true, $settings['validateForms'] ); ?> />
-	<label for="validateForms">Validate all forms by default</label><br />
-	<input type="checkbox" id="fixFooter" name="uwf_options[fixFooter]" value="1" <?php checked( true, $settings['fixFooter'] ); ?> />
-	<label for="fixFooter">Fix footer to the bottom of the window if content is less than full height</label></p>
 	
-	<p><input type="checkbox" id="shortenLinks" name="uwf_options[shortenLinks]" value="1" <?php checked( true, $settings['shortenLinks'] ); ?> />
-	<label for="shortenLinks">Shorten links to fit within their containers</label><br />
-	<label for="shortenLinksSelector">jQuery selector for links:</label><br />
-	<input type="text" id="sectionNavigationSelector" name="uwf_options[shortenLinksSelector]" value="<?php esc_attr_e($settings['shortenLinksSelector']); ?>" /></p>
+	<tr valign="top">
+		<th scope="row">Links</th>
+		<td>
+			<p><input type="checkbox" id="shortenLinks" name="uwf_options[shortenLinks]" value="1" <?php checked( true, $settings['shortenLinks'] ); ?> /> <label for="shortenLinks">Shorten links to fit within their containers</label></p>
+			<p><label for="shortenLinksSelector">jQuery selector for links:</label> <input type="text" id="sectionNavigationSelector" name="uwf_options[shortenLinksSelector]" value="<?php esc_attr_e($settings['shortenLinksSelector']); ?>" /></p>
+			<p><input type="checkbox" id="externalLinks" name="uwf_options[externalLinks]" value="1" <?php checked( true, $settings['externalLinks'] ); ?> /> <label for="externalLinks">Open external links in a new window</label></p>
+			<p><label for="externalLinksExceptions">jQuery selector for external links that should <strong>not</strong> be opened in a new window:</label> <input type="text" id="externalLinksExceptions" name="uwf_options[externalLinksExceptions]" value="<?php esc_attr_e($settings['externalLinksExceptions']); ?>" /></p>
+		</td>
+	</tr>
 	
-	<p><input type="checkbox" id="externalLinks" name="uwf_options[externalLinks]" value="1" <?php checked( true, $settings['externalLinks'] ); ?> />
-	<label for="externalLinks">Open external links in a new window</label><br />
-	<label for="externalLinksExceptions">jQuery selector for external links that should <strong>not</strong> be opened in a new window:</label><br />
-	<input type="text" id="externalLinksExceptions" name="uwf_options[externalLinksExceptions]" value="<?php esc_attr_e($settings['externalLinksExceptions']); ?>" /></p>
+	<tr valign="top">
+		<th scope="row">Scrolling in-page navigation</th>
+		<td>
+			<p><label for="sectionNavigationSelector">jQuery selector for anchor links:</label> <input type="text" id="sectionNavigationSelector" name="uwf_options[sectionNavigationSelector]" value="<?php esc_attr_e($settings['sectionNavigationSelector']); ?>" /></p>
+			<p><label for="sectionNavigationPadding">Top-of-page padding (in pixels):</label> <input type="text" id="sectionNavigationPadding" name="uwf_options[sectionNavigationPadding]" value="<?php esc_attr_e($settings['sectionNavigationPadding']); ?>" /></p>
+		</td>
+	</tr>
 	
-	<p><label for="sectionNavigationSelector">jQuery selector for anchor links that should trigger scrolling in-page navigation:</label><br />
-	<input type="text" id="sectionNavigationSelector" name="uwf_options[sectionNavigationSelector]" value="<?php esc_attr_e($settings['sectionNavigationSelector']); ?>" /><br />
-	<label for="sectionNavigationPadding">Top-of-page padding for scrolling in-page navigation (in pixels):</label><br />
-	<input type="text" id="sectionNavigationPadding" name="uwf_options[sectionNavigationPadding]" value="<?php esc_attr_e($settings['sectionNavigationPadding']); ?>" /></p>
+	<tr valign="top">
+		<th scope="row">"On This Page" Menu</th>
+		<td>
+			<p><label for="onThisPageHeading">Headers to use to generate:</label> <select id="onThisPageHeading" name="uwf_options[onThisPageHeading]">
+				<option value="h1" <?php selected( $settings['onThisPageHeading'], 'h1' ); ?>>h1</option>
+				<option value="h2" <?php selected( $settings['onThisPageHeading'], 'h2' ); ?>>h2</option>
+				<option value="h3" <?php selected( $settings['onThisPageHeading'], 'h3' ); ?>>h3</option>
+				<option value="h4" <?php selected( $settings['onThisPageHeading'], 'h4' ); ?>>h4</option>
+				<option value="h5" <?php selected( $settings['onThisPageHeading'], 'h5' ); ?>>h5</option>
+				<option value="h6" <?php selected( $settings['onThisPageHeading'], 'h6' ); ?>>h6</option>
+			</select></p>
+			<p><label for="onThisPageNav">jQuery selector for element to contain menu:</label> <input type="text" id="onThisPageNav" name="uwf_options[onThisPageNav]" value="<?php esc_attr_e($settings['onThisPageNav']); ?>" /></p>
+			<p><label for="onThisPageMinimumSections">Minimum sections that must be present to trigger "on this page" navigation:</label> <input type="text" id="onThisPageMinimumSections" name="uwf_options[onThisPageMinimumSections]" value="<?php esc_attr_e($settings['onThisPageMinimumSections']); ?>" /></p>
 	
-	<p><label for="mobileBreakPoint">Mobile break point (in pixels):</label><br />
-	<input type="text" id="mobileBreakPoint" name="uwf_options[mobileBreakPoint]" value="<?php esc_attr_e($settings['mobileBreakPoint']); ?>" /><br />
-	<label for="mobileMenuDirection">Mobile menu direction:</label><br />
-	<select id="mobileMenuDirection" name="uwf_options[mobileMenuDirection]">
-		<option value="left" <?php selected( $settings['mobileMenuDirection'], 'left' ); ?>>left</option>
-		<option value="right" <?php selected( $settings['mobileMenuDirection'], 'right' ); ?>>right</option>
-	</select></p>
+		</td>
+	</tr>
 	
-	<p><label for="onThisPageHeading">Headers to use to generate "on this page" navigation:</label><br />
-	<select id="onThisPageHeading" name="uwf_options[onThisPageHeading]">
-		<option value="h1" <?php selected( $settings['onThisPageHeading'], 'h1' ); ?>>h1</option>
-		<option value="h2" <?php selected( $settings['onThisPageHeading'], 'h2' ); ?>>h2</option>
-		<option value="h3" <?php selected( $settings['onThisPageHeading'], 'h3' ); ?>>h3</option>
-		<option value="h4" <?php selected( $settings['onThisPageHeading'], 'h4' ); ?>>h4</option>
-		<option value="h5" <?php selected( $settings['onThisPageHeading'], 'h5' ); ?>>h5</option>
-		<option value="h6" <?php selected( $settings['onThisPageHeading'], 'h6' ); ?>>h6</option>
-	</select><br />
-	<label for="onThisPageNav">jQuery selector for element to contain "on this page" navigation:</label><br />
-	<input type="text" id="onThisPageNav" name="uwf_options[onThisPageNav]" value="<?php esc_attr_e($settings['onThisPageNav']); ?>" /><br />
-	<label for="onThisPageMinimumSections">Minimum sections that must be present to trigger "on this page" navigation:</label><br />
-	<input type="text" id="onThisPageMinimumSections" name="uwf_options[onThisPageMinimumSections]" value="<?php esc_attr_e($settings['onThisPageMinimumSections']); ?>" /></p>
+	<tr valign="top">
+		<th scope="row">Footer</th>
+		<td>
+			<p><label for="footer_cols">Columns in Footer Widget Area</label> <select id="footer_cols" name="uwf_options[footer_cols]">
+				<option value="1" <?php selected( $settings['footer_cols'], 1 ); ?>>1</option>
+				<option value="2" <?php selected( $settings['footer_cols'], 2 ); ?>>2</option>
+				<option value="3" <?php selected( $settings['footer_cols'], 3 ); ?>>3</option>
+				<option value="4" <?php selected( $settings['footer_cols'], 4 ); ?>>4</option>
+			</select></p>
+			<p><input type="checkbox" id="fixFooter" name="uwf_options[fixFooter]" value="1" <?php checked( true, $settings['fixFooter'] ); ?> /> <label for="fixFooter">Fix footer to the bottom of the window if content is less than full height</label></p>
+		</td>
+	</tr>
 	
-	</td>
+	<tr valign="top">
+		<th><label for="custom_css">Custom CSS</label></th>
+		<td><textarea id="custom_css" name="uwf_options[custom_css]"><?php esc_attr_e($settings['custom_css']); ?></textarea></td>
 	</tr>
 
 	<tr valign="top">
