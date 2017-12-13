@@ -94,9 +94,12 @@ $uwf_options = array(
 	'navigation_title' => 'Navigation',
 	'footer_cols' => 3,
 	'google_fonts' => '',
+	'dashicons' => 0,
 	'custom_css' => '',
+	'wp_js' => '',
 	'custom_js' => '',
 	'editor_perms' => 0,
+	'site_credit' => '',
 
 	// to pass to javascript
 	'validateForms' => 1,
@@ -225,20 +228,20 @@ function uwf_widgets_init() {
 		'after_title'   => '</h2>',
 	) );
 	register_sidebar( array(
-		'name'          => __( 'Highlighted', 'uwf' ),
+		'name'          => __( 'Front Page Highlight', 'uwf' ),
 		'id'            => 'highlighted',
-		'description'   => __( 'Additional widget area that appears above the content.', 'uwf' ),
+		'description'   => __( 'Additional widget area that appears above the content on the front page', 'uwf' ),
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
 		'after_widget'  => '</aside>',
 		'before_title'  => '<h2 class="widget-title">',
 		'after_title'   => '</h2>',
 	) );
 	register_sidebar( array(
-		'name'          => __( 'Swaths', 'uwf' ),
+		'name'          => __( 'Front Page Swaths', 'uwf' ),
 		'id'            => 'swaths',
-		'description'   => __( 'Widgets appear as horizontal swaths below the content, above the footer.', 'uwf' ),
-		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
-		'after_widget'  => '</aside>',
+		'description'   => __( 'Widgets appear as horizontal swaths below the content, above the footer, on the front page', 'uwf' ),
+		'before_widget' => '<div id="%1$s-wrapper" class="section-wrapper"><section id="%1$s" class="section widget %2$s clearfix container"><div id="%1$s-inner" class="section-inner">',
+		'after_widget'  => '</div></section></div>',
 		'before_title'  => '<h2 class="widget-title">',
 		'after_title'   => '</h2>',
 	) );
@@ -366,6 +369,11 @@ function uwf_scripts() {
 	$css_deps[] = 'uwf-reset';
 	wp_enqueue_style( 'uwf-bootstrap', get_template_directory_uri() . '/css/bootstrap.min.css', $css_deps, '20131205' );
 	$css_deps[] = 'uwf-bootstrap';
+	
+	// Load WP dashicons if that is enabled
+	if ($uwf_options['dashicons']) {
+		wp_enqueue_style( 'dashicons' );
+	}
 
 	// Load our compass/sass stylesheet, where all of the actual styles happen
 	wp_enqueue_style( 'uwf-screen', get_template_directory_uri() . '/css/screen.css', $css_deps );
@@ -430,6 +438,14 @@ function uwf_scripts() {
 	wp_enqueue_script( 'uwf-fastclick', get_template_directory_uri() . '/js/fastclick.min.js', array(), '20160116' );
 	wp_enqueue_script( 'uwf-hammer', get_template_directory_uri() . '/js/hammer.min.js', array(), '20160116' );
 	wp_enqueue_script( 'jquery' );
+	
+	if ($uwf_options['wp_js']) {
+		$wp_js_handles = explode(',',$uwf_options['wp_js']);
+		foreach ($wp_js_handles as $wp_js_handle) {
+			wp_enqueue_script( trim( $wp_js_handle ) );
+		}
+	}
+	
 	wp_enqueue_script( 'uwf-jquery-validate', get_template_directory_uri() . '/js/jquery.validate.js', array( 'jquery' ), '20160116' );
 	wp_enqueue_script( 'uwf-uwfutil', get_template_directory_uri() . '/js/uwfutil.js', array('uwf-modernizr', 'uwf-fastclick', 'uwf-hammer', 'jquery', 'uwf-jquery-validate'), '20160414' );
 	wp_localize_script( 'uwf-uwfutil', 'uwfOptions', $uwf_js_options);
@@ -486,6 +502,36 @@ function uwf_navigation_title() {
 	global $uwf_options;
 	$output = __(($uwf_options['navigation_title'] ? $uwf_options['navigation_title'] : 'Navigation'), 'uwf');
 	echo $output;
+}
+endif;
+
+
+
+/**
+ * provide site credit
+ * @since uwf 1.1
+ *
+ * @return html The site credits
+ */
+
+if ( ! function_exists( 'uwf_the_site_credit' ) ) :
+function uwf_the_site_credit() {
+	global $uwf_options;
+	$site_credit_option = isset($uwf_options['site_credit']) ? $uwf_options['site_credit'] : '';
+	if ($site_credit_option == '<none>') { return; }
+	if ($site_credit_option) {
+		$output = $site_credit_option;
+	} else {
+		$theme = wp_get_theme();
+		$theme_name = $theme->get( 'Name' );
+		$theme_url = $theme->get( 'ThemeURI' );
+		$theme_link = $theme_url ? '<a href="' . $theme_url . '">' . $theme_name . '</a>' : '<span>'.$theme_name.'</span>';
+		$output = 'Theme: '.$theme_link;
+		if ($theme_name != 'Unwritten Future') {
+			$output .= ', an <a href="https://github.com/Webskillet/uwf-wp">Unwritten Future</a> child theme';
+		}
+	}
+	echo '<div id="site-credit">'.$output.'</div>';
 }
 endif;
 
@@ -823,7 +869,7 @@ function uwf_theme_options_page() {
 		<td>
 			<p><label for="google_fonts">Google Fonts</label> <input id="google_fonts" name="uwf_options[google_fonts]" type="text" value="<?php  esc_attr_e($settings['google_fonts']); ?>" />
 			<span class="dashicons dashicons-editor-help" title="More information available in the help dropdown"></span></p>
-			<p></p>
+			<p><input type="checkbox" id="dashicons" name="uwf_options[dashicons]" value="1" <?php checked( true, $settings['dashicons'] ); ?> /> <label for="dashicons">Load <a href="https://developer.wordpress.org/resource/dashicons/" target="_blank">dashicons</a> on the front end</label></p>
 		</td>
 	</tr>
 	
@@ -902,8 +948,11 @@ function uwf_theme_options_page() {
 	</tr>
 
 	<tr valign="top">
-		<th scope="row"><label for="custom_js">Custom Javascript</label></th>
-		<td><textarea id="custom_js" name="uwf_options[custom_js]"><?php esc_attr_e($settings['custom_js']); ?></textarea></td>
+		<th scope="row">Javascript</th>
+		<td>
+			<p><label for="wp_js">Load <a href="https://developer.wordpress.org/reference/functions/wp_enqueue_script/#default-scripts-included-and-registered-by-wordpress" target="_blank">WP Javascript libraries</a> by handle (separate multiple libraries by commas)</label><br /><input id="wp_js" name="uwf_options[wp_js]" value="<?php esc_attr_e($settings['wp_js']); ?>" /></p>
+			<p><label for="custom_js">Custom Javascript</label><br /><textarea id="custom_js" name="uwf_options[custom_js]"><?php esc_attr_e($settings['custom_js']); ?></textarea></p>
+		</td>
 	</tr>
 
 	<tr valign="top"><th scope="row">Editor Permissions</th>
@@ -911,6 +960,13 @@ function uwf_theme_options_page() {
 	<input type="checkbox" id="editor_perms" name="uwf_options[editor_perms]" value="1" <?php checked( true, $settings['editor_perms'] ); ?> />
 	<label for="editor_perms">Give users with Editor role access to theme options (widgets, menus, etc.)</label>
 	</td>
+	</tr>
+	
+	<tr valign="top">
+		<th scope="row">Site Credit</th>
+		<td>
+			<label for="site_credit">Site credit (enter "&lt;none&gt;" for none, blank for default):</label> <input type="text" id="site_credit" name="uwf_options[site_credit]" value="<?php esc_attr_e($settings['site_credit']); ?>" />
+		</td>
 	</tr>
 
 	</table>
@@ -959,7 +1015,7 @@ function uwf_validate_options( $input ) {
 	$input['onThisPageNav'] = wp_filter_nohtml_kses( $input['onThisPageNav'] );
 	
 	// validate checkboxes
-	$checkboxes = array( 'editor_perms', 'validateForms', 'fixFooter', 'shortenLinks', 'externalLinks' );
+	$checkboxes = array( 'editor_perms', 'dashicons', 'validateForms', 'fixFooter', 'shortenLinks', 'externalLinks' );
 	foreach ($checkboxes as $checkbox) {
 		if ( ! isset( $input[$checkbox] ) )
 			$input[$checkbox] = null;

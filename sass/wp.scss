@@ -8,6 +8,9 @@
 	.admin-bar #utility-wrapper { top: 32px; }
 }
 
+#site-credit { text-align: center; font-size: 0.8em; line-height: 1.5em; margin: 1em 0; }
+#site-credit a, #site-credit span { font-weight: bold; }
+
 // iPad in portrait mode or larger
 @media screen and (max-width: 782px) {
 	.admin-bar.menu-mobile #navigation { top: 46px; }

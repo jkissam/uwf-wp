@@ -2,12 +2,15 @@
 
 Wordpress theme based on [Unwritten Future](https://github.com/jkissam/unwritten_future/) front-end framework
 
+_Latest update: Version 1.1, 2017-12-13_
+
 Built-in CSS includes:
 
 * reset.css
 * Bootstrap grid system (but no other bootstrap styling)
-* Horizontal Swath sidebar region for building parallax-style sites/themes
-* Special "utility" section which will render just above the footer on mobile but which is placed in upper-right-hand corner on tablets & desktop by media query
+* option to load [Wordpress dashicons](https://developer.wordpress.org/resource/dashicons/) into front-end theme
+* Horizontal Swath "sidebar" region for building parallax-style displays on the front page
+* Special "utility" section which will render just above the footer on mobile but which is placed in upper-right-hand corner on tablets & desktop by media query (useful for secondary menus or social media links)
 
 Javascript/CSS functionality includes:
 
@@ -15,6 +18,7 @@ Javascript/CSS functionality includes:
 * Dismissable messages
 * Modals, which are openable by linking to their ids or programatically through Javascript
 * Option to fix footer to the bottom of the page when content doesn't push it that far
+* option to load [javascript libraries bundled with Wordpress](https://developer.wordpress.org/reference/functions/wp_enqueue_script/#default-scripts-included-and-registered-by-wordpress) into front-end theme
 
 Additional optional Javascript functionality:
 
@@ -30,3 +34,7 @@ Additional optional Javascript functionality:
 * scroll the page to include a particular element
 * vertically center an element relative to another element
 * smartresize event
+
+## Changelog
+
+__December 13, 2017__ : Upgrade to version 1.1, which includes functions to load dashicons and WP javascript libraries, site credit, and properly implements "swaths" sidebar region

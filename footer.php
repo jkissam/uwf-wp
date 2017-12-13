@@ -10,13 +10,9 @@
 		</div><!-- #main -->
 	</div>
 
-	<?php if ( is_active_sidebar( 'utility' ) ) : ?>
-	<div id="utility-wrapper" class="section-wrapper">
-		<div id="utility" class="section widget-area clearfix container">
-			<div id="utility-inner" class="section-inner">
-				<?php dynamic_sidebar( 'utility' ); ?>
-			</div>
-		</div>
+	<?php if ( is_front_page() && is_active_sidebar( 'swaths' ) ) : ?>
+	<div id="swaths-wrapper" class="widget-area">
+		<?php dynamic_sidebar( 'swaths' ); ?>
 	</div>
 	<?php endif; ?>
 
@@ -40,7 +36,7 @@
 			</div><!-- #footer-widget-area -->
 			<?php endif; ?>
 			
-			<?php /* put site credit options here */ ?>
+			<?php uwf_the_site_credit(); ?>
 
 			</div><!-- /.footer-inner -->
 		</footer><!-- #footer -->
