@@ -19,6 +19,7 @@
  *   2.1.5 prepareModals
  *   2.1.6 openModal
  *   2.1.7 closeModal
+ *   2.1.8 prepareInputLabels
  *  2.2 Optional Functions (controlled by uwfOptions, which can be set in this file or set by CMS)
  *   2.2.1 fixFooter
  *   2.2.2 shortenLinks
@@ -123,6 +124,7 @@ uwfUtil = {
 		uwfUtil.prepareNavigation();
 		uwfUtil.prepareMessages();
 		uwfUtil.prepareModals();
+		uwfUtil.prepareInputLabels();
 
 		// validate any forms
 		if (jQuery('form').validate && uwfOptions.validateForms) {
@@ -310,6 +312,23 @@ uwfUtil = {
 	closeModal : function() {
 		jQuery('body').removeClass('modal-open');
 		window.setTimeout(function(){ jQuery('#modals .modal').hide().removeClass('open'); jQuery('#modals-wrapper').hide(); }, 1000);
+	},
+	
+	// 2.1.8 prepare input labels
+	prepareInputLabels : function() {
+		jQuery('input.uwf-input-label, textarea.uwf-input-label, .uwf-input-label input, .uwf-input-label textarea').each(function(){
+			if ( (jQuery(this).attr('type') == 'checkbox') || (jQuery(this).attr('type') == 'radio') || (jQuery(this).attr('type') == 'submit') ) { return; }
+			var $self = jQuery(this);
+			$self.parent().addClass('uwf-input-label-container');
+			$self.focus(function(){
+				var id = $self.attr('id');
+				jQuery('label[for="'+id+'"]').addClass('uwf-focused');
+			});
+			$self.blur(function(){
+				var id = $self.attr('id');
+				if (!$self.val().length) { jQuery('label[for="'+id+'"]').removeClass('uwf-focused'); }
+			});
+		});
 	},
 
 	/**
@@ -592,6 +611,7 @@ jQuery(window).load(function(){
  */
 jQuery(document).ajaxComplete(function() {
 	uwfUtil.prepareMessages();
+	uwfUtil.prepareInputLabels();
 	if (uwfOptions.fixFooter) { uwfUtil.fixFooter(); }
 	if (uwfOptions.shortenLinks) { uwfUtil.shortenLinks( uwfOptions.shortenLinksSelector ); }
 });

@@ -80,7 +80,7 @@
 		</nav>
 	</div>
 
-	<?php if ( is_front_page() && is_active_sidebar( 'highlighted' ) ) : ?>
+	<?php if ( uwf_display_highlighted() && is_active_sidebar( 'highlighted' ) ) : ?>
 	<div id="highlighted-wrapper" class="section-wrapper">
 		<div id="highlighted" class="highlighted widget-area clearfix container section" role="complementary">
 			<div id="highlighted-inner" class="section-inner">

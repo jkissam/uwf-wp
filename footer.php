@@ -10,7 +10,7 @@
 		</div><!-- #main -->
 	</div>
 
-	<?php if ( is_front_page() && is_active_sidebar( 'swaths' ) ) : ?>
+	<?php if ( uwf_display_swaths() && is_active_sidebar( 'swaths' ) ) : ?>
 	<div id="swaths-wrapper" class="widget-area">
 		<?php dynamic_sidebar( 'swaths' ); ?>
 	</div>

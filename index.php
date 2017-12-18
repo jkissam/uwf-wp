@@ -15,7 +15,7 @@ get_header(); ?>
 
 			<div id="main-inner" class="section-inner row">
 				
-				<div id="primary" class="clearfix col-xs-12 col-sm-8">
+				<div id="primary" class="clearfix <?php uwf_primary_class(); ?>">
 					<div id="content" class="site-content" role="main">
 
 		<?php
@@ -43,7 +43,7 @@ get_header(); ?>
 					</div><!-- #content -->
 				</div><!-- #primary -->
 
-				<?php get_sidebar(); ?>
+				<?php if ( uwf_display_sidebar() ) { get_sidebar(); } ?>
 			</div><!-- .main-inner -->
 
 <?php get_footer();

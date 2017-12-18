@@ -98,6 +98,7 @@ input[type="radio"]:checked, input[type="radio"]:disabled:checked {
 input[type="image"] { border: 0; outline: invert none medium; }
 input[type="search"] { -webkit-appearance: none; moz-appearance: none; }
 input, select { max-width: 400px; }
+textarea { display: block; }
 fieldset { margin: 2em 0; border-color: $light-gray; }
 legend { border: 1px solid $light-gray; padding: 2px 15px; background: $very-light-gray; }
 legend + * { -webkit-margin-top-collapse: separate; }
@@ -122,6 +123,11 @@ p.read-more a.button.button-block { float: right; margin: 0 0 1em 2em; }
 
 form ul { list-style: none outside none; margin: 0; }
 form ul li { margin-bottom: 1em; }
+
+.uwf-input-label-container { position: relative; margin-top: 1em; }
+.uwf-input-label-container label { position: absolute; left: 0.73333em; top: 0.53333em; z-index: 1; transition: top 0.25s, left 0.25s, font-size 0.25s; }
+label.uwf-focused { top: -1em; left: 0; font-size: 0.8em; line-height: 1.25em; }
+.uwf-input-label-container label.error, .uwf-input-label-container label.error.uwf-focused { top: 100%; left: 0; font-size: 0.8em; line-height: 1.25em; }
 
 // 1.8 miscellaneous
 

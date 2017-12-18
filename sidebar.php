@@ -4,7 +4,7 @@
  *
  */
 ?>
-<div id="secondary" class="clearfix col-sm-4">
+<div id="secondary" class="clearfix <?php uwf_sidebar_class(); ?>">
 
 	<?php if ( has_nav_menu( 'secondary' ) ) : ?>
 	<nav role="navigation" class="navigation site-navigation secondary-navigation">

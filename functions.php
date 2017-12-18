@@ -95,6 +95,11 @@ $uwf_options = array(
 	'footer_cols' => 3,
 	'google_fonts' => '',
 	'dashicons' => 0,
+	'highlighted_front_page_only' => 1,
+	'sidebar_front_page_hide' => 0,
+	'swaths_front_page_only' => 1,
+	'primary_class' => 'col-xs-12 col-sm-8',
+	'sidebar_class' => 'col-xs-12 col-sm-4',
 	'custom_css' => '',
 	'wp_js' => '',
 	'custom_js' => '',
@@ -228,18 +233,18 @@ function uwf_widgets_init() {
 		'after_title'   => '</h2>',
 	) );
 	register_sidebar( array(
-		'name'          => __( 'Front Page Highlight', 'uwf' ),
+		'name'          => __( 'Highlight', 'uwf' ),
 		'id'            => 'highlighted',
-		'description'   => __( 'Additional widget area that appears above the content on the front page', 'uwf' ),
+		'description'   => __( 'Additional widget area that appears above the content', 'uwf' ),
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
 		'after_widget'  => '</aside>',
 		'before_title'  => '<h2 class="widget-title">',
 		'after_title'   => '</h2>',
 	) );
 	register_sidebar( array(
-		'name'          => __( 'Front Page Swaths', 'uwf' ),
+		'name'          => __( 'Swaths', 'uwf' ),
 		'id'            => 'swaths',
-		'description'   => __( 'Widgets appear as horizontal swaths below the content, above the footer, on the front page', 'uwf' ),
+		'description'   => __( 'Widgets appear as horizontal swaths below the content, above the footer', 'uwf' ),
 		'before_widget' => '<div id="%1$s-wrapper" class="section-wrapper"><section id="%1$s" class="section widget %2$s clearfix container"><div id="%1$s-inner" class="section-inner">',
 		'after_widget'  => '</div></section></div>',
 		'before_title'  => '<h2 class="widget-title">',
@@ -505,14 +510,41 @@ function uwf_navigation_title() {
 }
 endif;
 
+if ( ! function_exists( 'uwf_display_highlighted' ) ) :
+function uwf_display_highlighted() {
+	global $uwf_options;
+	return $uwf_options['highlighted_front_page_only'] ? is_front_page() : true;
+}
+endif;
 
+if ( ! function_exists( 'uwf_display_sidebar' ) ) :
+function uwf_display_sidebar() {
+	global $uwf_options;
+	if ( !has_nav_menu( 'secondary' ) && !is_active_sidebar( 'sidebar' ) ) { return false; }
+	return $uwf_options['sidebar_front_page_hide'] ? !is_front_page() : true;
+}
+endif;
 
-/**
- * provide site credit
- * @since uwf 1.1
- *
- * @return html The site credits
- */
+if ( ! function_exists( 'uwf_display_swaths' ) ) :
+function uwf_display_swaths() {
+	global $uwf_options;
+	return $uwf_options['swaths_front_page_only'] ? is_front_page() : true;
+}
+endif;
+
+if ( ! function_exists( 'uwf_primary_class' ) ) :
+function uwf_primary_class() {
+	global $uwf_options;
+	echo uwf_display_sidebar() ? $uwf_options['primary_class'] : 'col-xs-12';
+}
+endif;
+
+if ( ! function_exists( 'uwf_sidebar_class' ) ) :
+function uwf_sidebar_class() {
+	global $uwf_options;
+	echo $uwf_options['sidebar_class'];
+}
+endif;
 
 if ( ! function_exists( 'uwf_the_site_credit' ) ) :
 function uwf_the_site_credit() {
@@ -874,6 +906,17 @@ function uwf_theme_options_page() {
 	</tr>
 	
 	<tr valign="top">
+		<th scope="row">Sidebars <span class="dashicons dashicons-editor-help" title="More information available in the help dropdown"></span></th>
+		<td>
+			<p><input type="checkbox" id="highlighted_front_page_only" name="uwf_options[highlighted_front_page_only]" value="1" <?php checked( true, $settings['highlighted_front_page_only'] ); ?> /> <label for="highlighted_front_page_only">Display <em>highlighted</em> "sidebar" on front page only</label></p>
+			<p><input type="checkbox" id="sidebar_front_page_hide" name="uwf_options[sidebar_front_page_hide]" value="1" <?php checked( true, $settings['sidebar_front_page_hide'] ); ?> /> <label for="sidebar_front_page_hide">Hide main sidebar on the front page</label></p>
+			<p><input type="checkbox" id="swaths_front_page_only" name="uwf_options[swaths_front_page_only]" value="1" <?php checked( true, $settings['swaths_front_page_only'] ); ?> /> <label for="swaths_front_page_only">Display <em>swaths</em> "sidebar" on front page only</label></p>
+			<p><label for="primary_class">Primary Class</label> <input id="primary_class" name="uwf_options[primary_class]" type="text" value="<?php esc_attr_e($settings['primary_class']); ?>" /></p>
+			<p><label for="sidebar_class">Sidebar Class</label> <input id="sidebar_class" name="uwf_options[sidebar_class]" type="text" value="<?php esc_attr_e($settings['sidebar_class']); ?>" /></p>
+		</td>
+	</tr>
+	
+	<tr valign="top">
 		<th scope="row">Main Menu</th>
 		<td>
 			<p><label for="navigation_title">Navigation Title</label> <input id="navigation_title" name="uwf_options[navigation_title]" type="text" value="<?php  esc_attr_e($settings['navigation_title']); ?>" /></p>
@@ -994,6 +1037,17 @@ function uwf_theme_options_help() {
 <p>enter <strong>Roboto:400,500italic</strong> as the Google Fonts option.</p>
 		',
 	));
+	
+	$screen->add_help_tab( array(
+		'id'       => 'uwf-theme-sidebars',
+		'title'    => __( 'Sidebars' ),
+		'content'  => '
+<p>The "Highlighted" and "Swaths" sidebar regions are, by default, shown only on the front page, but unchecking those options will display them on interior pages</p>
+<p>Checking the "hide sidebar on the front page" will display the "sidebar" region only on interior pages</p>
+<p>The "primary class" and "sidebar class" use <a href="https://getbootstrap.com/docs/3.3/css/#grid" target="_blank">Bootstrap 3 grid classes</a> to control the layout of the <code>#primary</code> (content) and <code>#secondary</code> (sidebar) elements, <em>if there is sidebar content</em>. If there is no sidebar content (because there are no widgets assigned to the region & no secondary navigation menu), or if the sidebar is hidden on the front page, the <code>#primary</code> element will be assigned the <code>col-xs-12</code> class.</p>
+<p><strong>Note:</strong> These may not work, or produce unpredictable results, if a child theme has altered the sidebar structure</p>
+		',
+	));
 
 }
 endif;
@@ -1008,6 +1062,8 @@ function uwf_validate_options( $input ) {
 	
 	// We strip all tags from text fields, to avoid vulnerablilties like XSS
 	$input['google_fonts'] = wp_filter_nohtml_kses( $input['google_fonts'] );
+	$input['primary_class'] = wp_filter_nohtml_kses( $input['primary_class'] );
+	$input['sidebar_class'] = wp_filter_nohtml_kses( $input['sidebar_class'] );
 	$input['navigation_title'] = wp_filter_nohtml_kses( $input['navigation_title'] );
 	$input['shortenLinksSelector'] = wp_filter_nohtml_kses( $input['shortenLinksSelector'] );
 	$input['externalLinksExceptions'] = wp_filter_nohtml_kses( $input['externalLinksExceptions'] );
@@ -1015,7 +1071,17 @@ function uwf_validate_options( $input ) {
 	$input['onThisPageNav'] = wp_filter_nohtml_kses( $input['onThisPageNav'] );
 	
 	// validate checkboxes
-	$checkboxes = array( 'editor_perms', 'dashicons', 'validateForms', 'fixFooter', 'shortenLinks', 'externalLinks' );
+	$checkboxes = array(
+		'editor_perms',
+		'dashicons',
+		'highlighted_front_page_only',
+		'sidebar_front_page_hide',
+		'swaths_front_page_only',
+		'validateForms', 
+		'fixFooter',
+		'shortenLinks',
+		'externalLinks',
+	);
 	foreach ($checkboxes as $checkbox) {
 		if ( ! isset( $input[$checkbox] ) )
 			$input[$checkbox] = null;
