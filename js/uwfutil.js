@@ -277,6 +277,8 @@ uwfUtil = {
 
 			if (href.substr(0,1) == '#') {
 				$target = jQuery(href);
+			} else {
+				return true;
 			}
 
 			if ($target.length != 1) { return; }
