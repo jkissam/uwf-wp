@@ -44,13 +44,17 @@
 
 </div><!-- #site-wrapper -->
 
-<?php if ( is_active_sidebar( 'modals' ) ) : ?>
 <div id="modals-wrapper">
 	<div id="modals" class="modals widget-area" role="complementary">
 		<?php dynamic_sidebar( 'modals' ); ?>
+		<div id="search" class="widget">
+			<h2><?php _e('Search','uwf'); ?></h2>
+			<div class="search-box">
+				<?php get_search_form(); ?>
+			</div>
+		</div>
 	</div><!-- #modals -->
 </div>
-<?php endif; ?>
 
 	<?php wp_footer(); ?>
 </body>

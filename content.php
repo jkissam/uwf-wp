@@ -7,7 +7,7 @@
  */
 
 if (is_single()) {
-	 $post_image = get_the_post_thumbnail(get_the_ID(), 'tldr-full-width');
+	 $post_image = get_the_post_thumbnail(get_the_ID(), 'uwf-full-width');
 } else {
 	 $post_image = get_the_post_thumbnail(get_the_ID());
 }
@@ -27,7 +27,7 @@ if (is_single()) {
 	<header class="entry-header">
 		<?php if ( in_array( 'category', get_object_taxonomies( get_post_type() ) ) ) : ?>
 		<div class="entry-meta">
-			<span class="cat-links"><?php echo get_the_category_list( _x( ', ', 'Used between list items, there is a space after the comma.', 'tldr' ) ); ?></span>
+			<span class="cat-links"><?php echo get_the_category_list( _x( ', ', 'Used between list items, there is a space after the comma.', 'uwf' ) ); ?></span>
 		</div>
 		<?php
 			endif;
@@ -47,11 +47,11 @@ if (is_single()) {
 				endif; 
 				if ( ! post_password_required() && ( comments_open() || get_comments_number() ) ) :
 			?>
-			<span class="comments-link"><?php comments_popup_link( __( 'Leave a comment', 'tldr' ), __( '1 Comment', 'tldr' ), __( '% Comments', 'tldr' ) ); ?></span>
+			<span class="comments-link"><?php comments_popup_link( __( 'Leave a comment', 'uwf' ), __( '1 Comment', 'uwf' ), __( '% Comments', 'uwf' ) ); ?></span>
 			<?php
 				endif;
 
-				edit_post_link( __( 'Edit', 'tldr' ), '<span class="edit-link">', '</span>' );
+				edit_post_link( __( 'Edit', 'uwf' ), '<span class="edit-link">', '</span>' );
 			?>
 		</div><!-- .entry-meta -->
 	</header><!-- .entry-header -->
@@ -63,9 +63,9 @@ if (is_single()) {
 	<?php else : ?>
 	<div class="entry-content">
 		<?php
-			the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'tldr' ) );
+			the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'uwf' ) );
 			wp_link_pages( array(
-				'before'      => '<div class="page-links"><span class="page-links-title">' . __( 'Pages:', 'tldr' ) . '</span>',
+				'before'      => '<div class="page-links"><span class="page-links-title">' . __( 'Pages:', 'uwf' ) . '</span>',
 				'after'       => '</div>',
 				'link_before' => '<span>',
 				'link_after'  => '</span>',

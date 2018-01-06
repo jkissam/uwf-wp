@@ -176,6 +176,9 @@ uwfUtil = {
 		jQuery('#navigation .main-menu ul li ul').before('<span class="menu-toggle closed" title="'+uwfText.openSubmenu+'"></span>');
 		jQuery('#navigation .menu-toggle').click(function(){
 			if (jQuery(this).hasClass('closed')) {
+				jQuery(this).closest('ul').find('ul').each(function(){
+					jQuery(this).removeClass('open').siblings('.menu-toggle').removeClass('open').addClass('closed').attr('title',uwfText.openSubmenu);
+				});
 				jQuery(this).removeClass('closed').addClass('open').attr('title',uwfText.closeSubmenu);
 				jQuery(this).siblings('ul').addClass('open');
 			} else {
@@ -322,13 +325,13 @@ uwfUtil = {
 			if ( (jQuery(this).attr('type') == 'checkbox') || (jQuery(this).attr('type') == 'radio') || (jQuery(this).attr('type') == 'submit') ) { return; }
 			var $self = jQuery(this);
 			$self.parent().addClass('uwf-input-label-container');
+			var uwfInputLabelId = $self.attr('id');
+			if ($self.val().length) { jQuery('label[for="'+uwfInputLabelId+'"]').addClass('uwf-focused') }
 			$self.focus(function(){
-				var id = $self.attr('id');
-				jQuery('label[for="'+id+'"]').addClass('uwf-focused');
+				jQuery('label[for="'+uwfInputLabelId+'"]').addClass('uwf-focused');
 			});
 			$self.blur(function(){
-				var id = $self.attr('id');
-				if (!$self.val().length) { jQuery('label[for="'+id+'"]').removeClass('uwf-focused'); }
+				if (!$self.val().length) { jQuery('label[for="'+uwfInputLabelId+'"]').removeClass('uwf-focused'); }
 			});
 		});
 	},
@@ -440,10 +443,17 @@ uwfUtil = {
 	prepareSectionNavigation : function(sel, padding) {
 		if (isNaN(padding)) { padding = 20; }
 		var $ = jQuery;
+		if (!$(sel).length) { return; }
 		$(sel).click(function(event){
 			var target = $(this).attr('href');
 			if (!target) { target = $(this).attr('data-target'); }
 			if (!target || (target.substr(0,1) != '#')) { return true; }
+			if (!$(target).length) {
+				if ($('a[name="'+target.substr(1)+'"]').length) {
+					target = 'a[name="'+target.substr(1)+'"]';
+				}
+			}
+			if (!$(target).length) { return true; }
 			var callback = $(this).attr('data-callback');
 			var focusInput = $(this).attr('data-focus-input');
 			newTop = $(target).offset().top;
