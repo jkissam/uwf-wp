@@ -118,7 +118,7 @@ $uwf_options = array(
 	'mobileBreakPoint' => 768,
 	'mobileMenuDirection' => 'left',
 	'onThisPageHeading' => 'h2',
-    'onThisPageContent' => '#content'
+    'onThisPageContent' => '#content',
 	'onThisPageNav' => '#on-this-page, .on-this-page',
 	'onThisPageMinimumSections' => 2,
 );
