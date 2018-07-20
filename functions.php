@@ -118,7 +118,8 @@ $uwf_options = array(
 	'mobileBreakPoint' => 768,
 	'mobileMenuDirection' => 'left',
 	'onThisPageHeading' => 'h2',
-	'onThisPageNav' => '#on-this-page',
+    'onThisPageContent' => '#content'
+	'onThisPageNav' => '#on-this-page, .on-this-page',
 	'onThisPageMinimumSections' => 2,
 );
 $uwf_options = get_option( 'uwf_options', $uwf_options );
@@ -413,6 +414,7 @@ function uwf_scripts() {
 		'mobileBreakPoint',
 		'mobileMenuDirection',
 		'onThisPageHeading',
+        'onTHisPageContent',
 		'onThisPageNav',
 		'onThisPageMinimumSections',
 	);
@@ -966,6 +968,7 @@ function uwf_theme_options_page() {
 				<option value="h5" <?php selected( $settings['onThisPageHeading'], 'h5' ); ?>>h5</option>
 				<option value="h6" <?php selected( $settings['onThisPageHeading'], 'h6' ); ?>>h6</option>
 			</select></p>
+			<p><label for="onThisPageContent">jQuery selector for element to search:</label> <input type="text" id="onThisPageContent" name="uwf_options[onThisPageContent]" value="<?php esc_attr_e($settings['onThisPageContent']); ?>" /></p>
 			<p><label for="onThisPageNav">jQuery selector for element to contain menu:</label> <input type="text" id="onThisPageNav" name="uwf_options[onThisPageNav]" value="<?php esc_attr_e($settings['onThisPageNav']); ?>" /></p>
 			<p><label for="onThisPageMinimumSections">Minimum sections that must be present to trigger "on this page" navigation:</label> <input type="text" id="onThisPageMinimumSections" name="uwf_options[onThisPageMinimumSections]" value="<?php esc_attr_e($settings['onThisPageMinimumSections']); ?>" /></p>
 	

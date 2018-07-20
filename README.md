@@ -2,8 +2,8 @@
 
 Wordpress theme based on [Unwritten Future](https://github.com/jkissam/unwritten_future/) front-end framework
 
-_Version 1.2.1_  
-_Latest update: 2018-01-06_
+_Version 1.2.2_  
+_Latest update: 2018-07-20_
 
 ## Shortcodes
 
@@ -49,6 +49,8 @@ _Latest update: 2018-01-06_
 * smartresize event
 
 ## Changelog
+
+__July 20, 2018__ : Upgrade to version 1.2.2. Updated with Version 1.1.3 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which contains some small extra features on navigation javascript, and implements one of them (choosing element to search for "on this page" content) in Wordpress theme options.
 
 __January 6, 2018__ : Upgrade to version 1.2.1:
 

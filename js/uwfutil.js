@@ -150,7 +150,7 @@ uwfUtil = {
 		
 		// on-this-page navigation
 		if (uwfOptions.onThisPageHeading && uwfOptions.onThisPageNav && uwfOptions.sectionNavigationSelector) {
-			uwfUtil.prepareOnThisPage( uwfOptions.onThisPageHeading, uwfOptions.onThisPageNav, uwfOptions.onThisPageMinimumSections );
+			uwfUtil.prepareOnThisPage( uwfOptions.onThisPageHeading, uwfOptions.onThisPageNav, uwfOptions.onThisPageMinimumSections, uwfOptions.onThisPageContent );
 		}
 
 		// section navigation
@@ -181,9 +181,11 @@ uwfUtil = {
 				});
 				jQuery(this).removeClass('closed').addClass('open').attr('title',uwfText.closeSubmenu);
 				jQuery(this).siblings('ul').addClass('open');
+                jQuery('#navigation-wrapper').addClass('has-open-submenu');
 			} else {
 				jQuery(this).removeClass('open').addClass('closed').attr('title',uwfText.openSubmenu);
 				jQuery(this).siblings('ul').removeClass('open');
+                jQuery('#navigation-wrapper').removeClass('has-open-submenu');
 			}
 		});
 		jQuery('#navigation li.has-children > .nolink').click(function(){
@@ -410,9 +412,10 @@ uwfUtil = {
 	},
 	
 	// 2.2.4 create a navigation structure for the page
-	prepareOnThisPage : function( header, nav, minimumSections ) {
+	prepareOnThisPage : function( header, nav, minimumSections, contentSelector ) {
 		if ( jQuery(nav).length < 1 ) { return; }
-		if ( jQuery('#content '+header).length < minimumSections ) { jQuery(nav).hide(); return; }
+        if ( !contentSelector ) { contentSelector = '#content'; }
+		if ( jQuery(contentSelector+' '+header).length < minimumSections ) { jQuery(nav).hide(); return; }
 		jQuery(nav).append('<ul class="on-this-page-links"/>');
 		var sectionId = '';
 		var sectionText = '';
@@ -421,7 +424,7 @@ uwfUtil = {
 		if (!jQuery('#top').length) {
 			jQuery('#site-wrapper').prepend('<div id="top"/>');
 		}
-		jQuery('#content '+header).each(function(index){
+		jQuery(contentSelector+' '+header).each(function(index){
 			if (jQuery(this).attr('id') && jQuery(this).attr('id').length) {
 				sectionId = jQuery(this).attr('id');
 			} else {
@@ -432,7 +435,16 @@ uwfUtil = {
 			jQuery(nav + ' ul.on-this-page-links').append('<li><a href="#'+sectionId+'" class="'+sectionNavigationClass+'">'+sectionText+'</a></li>');
 			if (index) { jQuery(this).before(sectionNavigationTopLink); }
 		});
-		jQuery('#content').append(sectionNavigationTopLink);
+		jQuery(contentSelector).append(sectionNavigationTopLink);
+        
+        
+        jQuery('.on-this-page-mobile .on-this-page-links').prepend('<li class="dismiss menu-dismiss" title="Dismiss menu"></li>');
+        jQuery('.on-this-page-mobile .on-this-page-mobile-trigger').click(function(){
+            jQuery(this).closest('.on-this-page-mobile').find('.on-this-page-links').addClass('open');
+        });
+        jQuery('.on-this-page-mobile .on-this-page-links .dismiss, .on-this-page-mobile .on-this-page-links a').click(function(){
+            jQuery(this).closest('.on-this-page-links').removeClass('open');
+        });
 	},
 
 	// 2.2.5 when elements that match a particular jQuery selector
@@ -659,7 +671,8 @@ if (typeof uwfOptions == 'undefined') {
 		mobileBreakPoint : 768,
 		mobileMenuDirection: 'left',
 		onThisPageHeading : 'h2',
-		onThisPageNav : '#on-this-page',
+        onThisPageContent : '#content',
+		onThisPageNav : '#on-this-page, .on-this-page',
 		onThisPageMinimumSections : 2
 	}
 }
