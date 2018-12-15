@@ -2,8 +2,8 @@
 
 Wordpress theme based on [Unwritten Future](https://github.com/jkissam/unwritten_future/) front-end framework
 
-_Version 1.2.3_  
-_Latest update: 2018-11-13_
+_Version 1.2.4_  
+_Latest update: 2018-12-15_
 
 ## Shortcodes
 
@@ -49,6 +49,8 @@ _Latest update: 2018-11-13_
 * smartresize event
 
 ## Changelog
+
+__December 15, 2018__ : Upgrade to version 1.2.4. Updated with version 1.1.4 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which fixed a bug in `uwfUtil.shortenLinks` that triggered link shortening when the link is enclosed within an inline element
 
 __November 13, 2018__ : Upgrade to version 1.2.3. Added `max-width: 100%` to `wp-caption` class so that image captions are constrained to fit inside their containers.
 

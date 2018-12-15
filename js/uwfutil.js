@@ -365,8 +365,15 @@ uwfUtil = {
 			
 			// don't shorten links inside of buttons
 			if (jQuery(this).hasClass('button')) { return; }
+            
+            // find the first "parent" element that is not an inline element
+            // (inline <a> elements inside of inline <li> elements will be 1 pixel wider)
+            var $parent = jQuery(this).parent();
+            while ($parent.css('display') == 'inline') {
+                $parent = $parent.parent();
+            }
 			
-			if (jQuery(this).width() > jQuery(this).parent().width()) {
+			if (jQuery(this).width() > $parent.width()) {
 
 				href = jQuery(this).attr('href');
 				linktext = jQuery(this).text().trim();
@@ -376,7 +383,7 @@ uwfUtil = {
 					url = regex.exec(href);
 					if ((url !== null) && (url.length > 3) && url[2]) {
 						jQuery(this).text(url[2]);
-						if (jQuery(this).width() > jQuery(this).parent().width()) {
+						if (jQuery(this).width() > $parent.width()) {
 							jQuery(this).text(uwfText.link);
 						}
 					} else {
