@@ -91,10 +91,13 @@ $uwf_options = array(
 	
 	// for php
 	'logo_url' => get_template_directory_uri() . '/images/logo.png',
+    'favicon_url' => '',
 	'navigation_title' => 'Navigation',
+    'hide_navigation' => 0,
 	'footer_cols' => 3,
 	'google_fonts' => '',
 	'dashicons' => 0,
+    'max_width' => 0,
 	'highlighted_front_page_only' => 1,
 	'sidebar_front_page_hide' => 0,
 	'swaths_front_page_only' => 1,
@@ -118,8 +121,7 @@ $uwf_options = array(
 	'mobileBreakPoint' => 768,
 	'mobileMenuDirection' => 'left',
 	'onThisPageHeading' => 'h2',
-    'onThisPageContent' => '#content',
-	'onThisPageNav' => '#on-this-page, .on-this-page',
+	'onThisPageNav' => '#on-this-page',
 	'onThisPageMinimumSections' => 2,
 );
 $uwf_options = get_option( 'uwf_options', $uwf_options );
@@ -414,7 +416,6 @@ function uwf_scripts() {
 		'mobileBreakPoint',
 		'mobileMenuDirection',
 		'onThisPageHeading',
-        'onTHisPageContent',
 		'onThisPageNav',
 		'onThisPageMinimumSections',
 	);
@@ -472,6 +473,10 @@ if ( ! function_exists( 'uwf_custom_css' ) ) :
 function uwf_custom_css() {
 	global $uwf_options;
 	$custom_css = trim($uwf_options['custom_css']);
+    if ($uwf_options['max_width']) {
+        $custom_css .= $custom_css ? "\n" : '';
+		$custom_css .= '.container { max-width: '.$uwf_options['max_width'].'px; }';
+	}
 	if ($custom_css) { echo "<style>\n".$custom_css."\n</style>"; }
 }
 endif;
@@ -501,6 +506,32 @@ function uwf_get_logo() {
 		$output .= '<img src="'.$uwf_options['logo_url'].'" />';
 	}
 	return $output;
+}
+endif;
+
+if ( ! function_exists( 'uwf_favicon' ) ) :
+function uwf_favicon() {
+	global $uwf_options;
+    $output = '';
+    $favicon_url = '';
+    if ($uwf_options['favicon_url']) {
+        $favicon_url = $uwf_options['favicon_url'];
+    } else {
+        if ( file_exists ( get_stylesheet_directory() . '/favicon.ico' ) ) {
+            $favicon_url = get_stylesheet_directory_uri() . '/favicon.ico';
+        }
+    }
+	if ($favicon_url) {
+		$output = '<link rel="shortcut icon" href="'.$favicon_url.'" type="image/vnd.microsoft.icon" />';
+	}
+	echo $output;
+}
+endif;
+
+if ( ! function_exists( 'uwf_display_navigation' ) ) :
+function uwf_display_navigation() {
+	global $uwf_options;
+	return $uwf_options['hide_navigation'] ? false : true;
 }
 endif;
 
@@ -618,6 +649,10 @@ function uwf_body_classes( $classes ) {
 	} else {
 		$classes[] = 'not-front';
 	}
+    
+    if ( $uwf_options['hide_navigation'] ) {
+        $classes[] = 'menu-none';
+    }
 
 	return $classes;
 }
@@ -898,9 +933,22 @@ function uwf_theme_options_page() {
 	</td>
 	</tr>
 
+	<tr valign="top"><th scope="row"><label for="favicon_url">Favicon</label></th>
+	<td>
+	<div id="favicon_url_preview" style="width: 16px; float: left; margin-right: 20px;<?php echo $settings['favicon_url'] ? '' : ' display: none;'; ?>">
+		<?php if ($settings['favicon_url']) : ?><img src="<?php echo esc_url($settings['favicon_url']); ?>" style="max-width: 100%;" /><?php endif; ?>
+	</div>
+	<div><button class="button" id="favicon_url_delete_button"<?php echo $settings['favicon_url'] ? '' : ' style="display: none;"'; ?>><span class="dashicons dashicons-no"></span> Remove favicon</button></div>
+    <div style="clear: both;<?php echo $settings['favicon_url'] ? ' display: none;' : ''; ?>"><input type="text" id="favicon_url" name="uwf_options[favicon_url]" value="<?php echo esc_url($settings['favicon_url']); ?>" /></div>
+	</td>
+	</tr>
+
 	<tr valign="top">
 		<th scope="row">Display</th>
 		<td>
+			<p><label for="max_width">Max container width (in pixels):</label>
+				<input type="text" id="max_width" name="uwf_options[max_width]" value="<?php esc_attr_e($settings['max_width']); ?>" />
+			<span class="dashicons dashicons-editor-help" title="More information available in the help dropdown"></span></p>
 			<p><label for="google_fonts">Google Fonts</label> <input id="google_fonts" name="uwf_options[google_fonts]" type="text" value="<?php  esc_attr_e($settings['google_fonts']); ?>" />
 			<span class="dashicons dashicons-editor-help" title="More information available in the help dropdown"></span></p>
 			<p><input type="checkbox" id="dashicons" name="uwf_options[dashicons]" value="1" <?php checked( true, $settings['dashicons'] ); ?> /> <label for="dashicons">Load <a href="https://developer.wordpress.org/resource/dashicons/" target="_blank">dashicons</a> on the front end</label></p>
@@ -930,6 +978,7 @@ function uwf_theme_options_page() {
 					<option value="right" <?php selected( $settings['mobileMenuDirection'], 'right' ); ?>>right</option>
 				</select>
 			</p>
+			<p><input type="checkbox" id="hide_navigation" name="uwf_options[hide_navigation]" value="1" <?php checked( true, $settings['hide_navigation'] ); ?> /> <label for="hide_navigation">Hide navigation</label></p>
 		</td>
 	</tr>
 
@@ -968,10 +1017,9 @@ function uwf_theme_options_page() {
 				<option value="h5" <?php selected( $settings['onThisPageHeading'], 'h5' ); ?>>h5</option>
 				<option value="h6" <?php selected( $settings['onThisPageHeading'], 'h6' ); ?>>h6</option>
 			</select></p>
-			<p><label for="onThisPageContent">jQuery selector for element to search:</label> <input type="text" id="onThisPageContent" name="uwf_options[onThisPageContent]" value="<?php esc_attr_e($settings['onThisPageContent']); ?>" /></p>
 			<p><label for="onThisPageNav">jQuery selector for element to contain menu:</label> <input type="text" id="onThisPageNav" name="uwf_options[onThisPageNav]" value="<?php esc_attr_e($settings['onThisPageNav']); ?>" /></p>
 			<p><label for="onThisPageMinimumSections">Minimum sections that must be present to trigger "on this page" navigation:</label> <input type="text" id="onThisPageMinimumSections" name="uwf_options[onThisPageMinimumSections]" value="<?php esc_attr_e($settings['onThisPageMinimumSections']); ?>" /></p>
-	
+	       <p><em>Note: "On This Page" menu will only work if you add the element to contain the menu somewhere on your site (e.g., using a Custom HTML widget)</em></p>
 		</td>
 	</tr>
 	
@@ -1030,6 +1078,14 @@ endif;
 if ( ! function_exists( 'uwf_theme_options_help' ) ) :
 function uwf_theme_options_help() {
 	$screen = get_current_screen();
+	
+	$screen->add_help_tab( array(
+		'id'       => 'uwf-theme-sidebars',
+		'title'    => __( 'Max container width' ),
+		'content'  => '
+<p>By default, the <a href="https://getbootstrap.com/docs/3.3/css/#grid" target="_blank">Bootstrap 3 grid classes</a> that control layout for this theme will expand the width of the "container" class (which defines the maximum width of the menus, header, content and footer) to 760, 980 and 1180 pixels based on the width of the screen. However, in many cases, especially for sites that don\'t display a sidebar, that can make the text too wide. Setting the "Max Container Width" to a number smaller than 1180 (760 or 980 are recommended) will keep the content from spreading too wide. Setting it to zero keeps the default behavior.</p>
+		',
+	));
 
 	$screen->add_help_tab( array(
 		'id'       => 'uwf-theme-google-fonts',
@@ -1045,10 +1101,10 @@ function uwf_theme_options_help() {
 		'id'       => 'uwf-theme-sidebars',
 		'title'    => __( 'Sidebars' ),
 		'content'  => '
-<p>The "Highlighted" and "Swaths" sidebar regions are, by default, shown only on the front page, but unchecking those options will display them on interior pages</p>
-<p>Checking the "hide sidebar on the front page" will display the "sidebar" region only on interior pages</p>
+<p>The "Highlighted" and "Swaths" sidebar regions are, by default, shown only on the front page, but unchecking those options will display them on interior pages.</p>
+<p>Checking the "hide sidebar on the front page" will display the "sidebar" region only on interior pages.</p>
 <p>The "primary class" and "sidebar class" use <a href="https://getbootstrap.com/docs/3.3/css/#grid" target="_blank">Bootstrap 3 grid classes</a> to control the layout of the <code>#primary</code> (content) and <code>#secondary</code> (sidebar) elements, <em>if there is sidebar content</em>. If there is no sidebar content (because there are no widgets assigned to the region & no secondary navigation menu), or if the sidebar is hidden on the front page, the <code>#primary</code> element will be assigned the <code>col-xs-12</code> class.</p>
-<p><strong>Note:</strong> These may not work, or produce unpredictable results, if a child theme has altered the sidebar structure</p>
+<p><strong>Note:</strong> These may not work, or produce unpredictable results, if a child theme has altered the sidebar structure.</p>
 		',
 	));
 
@@ -1062,6 +1118,7 @@ function uwf_validate_options( $input ) {
 	$settings = get_option( 'uwf_options', $uwf_options );
 
 	$input['logo_url'] = esc_url( $input['logo_url'] );
+	$input['favicon_url'] = esc_url( $input['favicon_url'] );
 	
 	// We strip all tags from text fields, to avoid vulnerablilties like XSS
 	$input['google_fonts'] = wp_filter_nohtml_kses( $input['google_fonts'] );
@@ -1080,6 +1137,7 @@ function uwf_validate_options( $input ) {
 		'highlighted_front_page_only',
 		'sidebar_front_page_hide',
 		'swaths_front_page_only',
+        'hide_navigation',
 		'validateForms', 
 		'fixFooter',
 		'shortenLinks',
@@ -1093,7 +1151,7 @@ function uwf_validate_options( $input ) {
 	}
 	
 	// validate integer inputs
-	$integers = array( 'sectionNavigationPadding', 'mobileBreakPoint', 'onThisPageMinimumSections' );
+	$integers = array( 'max_width', 'sectionNavigationPadding', 'mobileBreakPoint', 'onThisPageMinimumSections' );
 	foreach ($integers as $integer) {
 		$input[$integer] = intval($input[$integer]);
 	}

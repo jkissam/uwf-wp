@@ -13,9 +13,9 @@
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <?php uwf_favicon(); ?>
 	<meta name="viewport" content="width=device-width, maximum-scale=1.0">
 	<title><?php wp_title( '|', true, 'right' ); ?></title>
-	<link rel="shortcut icon" href="<?php echo get_stylesheet_directory_uri(); ?>/favicon.ico" />
 	<link rel="profile" href="http://gmpg.org/xfn/11">
 	<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>">
 	<?php wp_head(); ?>
@@ -54,6 +54,7 @@
 		</header><!-- #header -->
 	</div>
 
+    <?php if ( uwf_display_navigation() ) : ?>
 	<div id="navigation-wrapper" class="section-wrapper">
 		<nav id="navigation" class="site-navigation primary-navigation section clearfix container" role="navigation">
 			<div id="navigation-inner" class="section-inner">
@@ -70,6 +71,7 @@
 			</div>
 		</nav>
 	</div>
+    <?php endif; ?>
 
 	<?php if ( uwf_display_highlighted() && is_active_sidebar( 'highlighted' ) ) : ?>
 	<div id="highlighted-wrapper" class="section-wrapper">

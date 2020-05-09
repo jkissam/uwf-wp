@@ -2,8 +2,8 @@
 
 Wordpress theme based on [Unwritten Future](https://github.com/jkissam/unwritten_future/) front-end framework
 
-_Version 1.2.4_  
-_Latest update: 2018-12-15_
+_Version 1.2.3_  
+_Latest update: 2020-05-09_
 
 ## Shortcodes
 
@@ -50,11 +50,15 @@ _Latest update: 2018-12-15_
 
 ## Changelog
 
-__December 15, 2018__ : Upgrade to version 1.2.4. Updated with version 1.1.4 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which fixed a bug in `uwfUtil.shortenLinks` that triggered link shortening when the link is enclosed within an inline element
+__May 9, 2020__ : Upgrade to version 1.2.3:
 
-__November 13, 2018__ : Upgrade to version 1.2.3. Added `max-width: 100%` to `wp-caption` class so that image captions are constrained to fit inside their containers.
+* Moved April 28 css changes from `_navigation.scss` to `wp.scss`/`wp.css` so they won't be overridden by any future updates to the [HTML Framework](https://github.com/jkissam/unwritten_future/)
+* Added favicon URL to theme options
+* Added theme option to add a max-width to the `container` class 
+* Added theme option to not display navigation
+* Added additional documentation to clarify what is necessary to get "On This Page" menu to work
 
-__July 20, 2018__ : Upgrade to version 1.2.2. Updated with Version 1.1.3 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which contains some small extra features on navigation javascript, and implements one of them (choosing element to search for "on this page" content) in Wordpress theme options.
+__April 28, 2020__ : Upgrade to version 1.2.2: Replaced references to `has-children` class in `_navigation.scss` and `uwfutil.js` with `menu-item-has-children` and `page_item_has_children` (e.g., the output actually created by Wordpress)
 
 __January 6, 2018__ : Upgrade to version 1.2.1:
 

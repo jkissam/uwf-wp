@@ -150,7 +150,7 @@ uwfUtil = {
 		
 		// on-this-page navigation
 		if (uwfOptions.onThisPageHeading && uwfOptions.onThisPageNav && uwfOptions.sectionNavigationSelector) {
-			uwfUtil.prepareOnThisPage( uwfOptions.onThisPageHeading, uwfOptions.onThisPageNav, uwfOptions.onThisPageMinimumSections, uwfOptions.onThisPageContent );
+			uwfUtil.prepareOnThisPage( uwfOptions.onThisPageHeading, uwfOptions.onThisPageNav, uwfOptions.onThisPageMinimumSections );
 		}
 
 		// section navigation
@@ -181,14 +181,12 @@ uwfUtil = {
 				});
 				jQuery(this).removeClass('closed').addClass('open').attr('title',uwfText.closeSubmenu);
 				jQuery(this).siblings('ul').addClass('open');
-                jQuery('#navigation-wrapper').addClass('has-open-submenu');
 			} else {
 				jQuery(this).removeClass('open').addClass('closed').attr('title',uwfText.openSubmenu);
 				jQuery(this).siblings('ul').removeClass('open');
-                jQuery('#navigation-wrapper').removeClass('has-open-submenu');
 			}
 		});
-		jQuery('#navigation li.has-children > .nolink').click(function(){
+		jQuery('#navigation li.page_item_has_children > .nolink, #navigation li.menu-item-has-children > .nolink').click(function(){
 			jQuery(this).siblings('.menu-toggle').click();
 		});
 		jQuery('.navigation-header').click(function(){
@@ -365,15 +363,8 @@ uwfUtil = {
 			
 			// don't shorten links inside of buttons
 			if (jQuery(this).hasClass('button')) { return; }
-            
-            // find the first "parent" element that is not an inline element
-            // (inline <a> elements inside of inline <li> elements will be 1 pixel wider)
-            var $parent = jQuery(this).parent();
-            while ($parent.css('display') == 'inline') {
-                $parent = $parent.parent();
-            }
 			
-			if (jQuery(this).width() > $parent.width()) {
+			if (jQuery(this).width() > jQuery(this).parent().width()) {
 
 				href = jQuery(this).attr('href');
 				linktext = jQuery(this).text().trim();
@@ -383,7 +374,7 @@ uwfUtil = {
 					url = regex.exec(href);
 					if ((url !== null) && (url.length > 3) && url[2]) {
 						jQuery(this).text(url[2]);
-						if (jQuery(this).width() > $parent.width()) {
+						if (jQuery(this).width() > jQuery(this).parent().width()) {
 							jQuery(this).text(uwfText.link);
 						}
 					} else {
@@ -419,10 +410,9 @@ uwfUtil = {
 	},
 	
 	// 2.2.4 create a navigation structure for the page
-	prepareOnThisPage : function( header, nav, minimumSections, contentSelector ) {
+	prepareOnThisPage : function( header, nav, minimumSections ) {
 		if ( jQuery(nav).length < 1 ) { return; }
-        if ( !contentSelector ) { contentSelector = '#content'; }
-		if ( jQuery(contentSelector+' '+header).length < minimumSections ) { jQuery(nav).hide(); return; }
+		if ( jQuery('#content '+header).length < minimumSections ) { jQuery(nav).hide(); return; }
 		jQuery(nav).append('<ul class="on-this-page-links"/>');
 		var sectionId = '';
 		var sectionText = '';
@@ -431,7 +421,7 @@ uwfUtil = {
 		if (!jQuery('#top').length) {
 			jQuery('#site-wrapper').prepend('<div id="top"/>');
 		}
-		jQuery(contentSelector+' '+header).each(function(index){
+		jQuery('#content '+header).each(function(index){
 			if (jQuery(this).attr('id') && jQuery(this).attr('id').length) {
 				sectionId = jQuery(this).attr('id');
 			} else {
@@ -442,16 +432,7 @@ uwfUtil = {
 			jQuery(nav + ' ul.on-this-page-links').append('<li><a href="#'+sectionId+'" class="'+sectionNavigationClass+'">'+sectionText+'</a></li>');
 			if (index) { jQuery(this).before(sectionNavigationTopLink); }
 		});
-		jQuery(contentSelector).append(sectionNavigationTopLink);
-        
-        
-        jQuery('.on-this-page-mobile .on-this-page-links').prepend('<li class="dismiss menu-dismiss" title="Dismiss menu"></li>');
-        jQuery('.on-this-page-mobile .on-this-page-mobile-trigger').click(function(){
-            jQuery(this).closest('.on-this-page-mobile').find('.on-this-page-links').addClass('open');
-        });
-        jQuery('.on-this-page-mobile .on-this-page-links .dismiss, .on-this-page-mobile .on-this-page-links a').click(function(){
-            jQuery(this).closest('.on-this-page-links').removeClass('open');
-        });
+		jQuery('#content').append(sectionNavigationTopLink);
 	},
 
 	// 2.2.5 when elements that match a particular jQuery selector
@@ -678,8 +659,7 @@ if (typeof uwfOptions == 'undefined') {
 		mobileBreakPoint : 768,
 		mobileMenuDirection: 'left',
 		onThisPageHeading : 'h2',
-        onThisPageContent : '#content',
-		onThisPageNav : '#on-this-page, .on-this-page',
+		onThisPageNav : '#on-this-page',
 		onThisPageMinimumSections : 2
 	}
 }

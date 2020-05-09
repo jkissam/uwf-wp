@@ -7,6 +7,9 @@ jQuery(document).ready(function($) {
 	$('#logo_url_delete_button').click(function() {
 		$('#logo_url').val('');
 	});
+	$('#favicon_url_delete_button').click(function() {
+		$('#favicon_url').val('');
+	});
 });
 
 window.send_to_editor = function(html) {
