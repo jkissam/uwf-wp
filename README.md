@@ -50,15 +50,20 @@ _Latest update: 2020-05-09_
 
 ## Changelog
 
-__May 9, 2020__ : Upgrade to version 1.2.3:
+__May 9, 2020__ : Upgrade to version 1.2.5:
 
-* Moved April 28 css changes from `_navigation.scss` to `wp.scss`/`wp.css` so they won't be overridden by any future updates to the [HTML Framework](https://github.com/jkissam/unwritten_future/)
+* Updated with version 1.2.2 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which adds javascript functions to "fix" arbitrary elements (so that it will not scroll off the page entirely but will scroll if its height is greater than the window height) and register Google Analytics events, and improves navigation and form css
+* Copied css for `has-children` class in `_navigation.scss` to `wp.scss`/`wp.css` with `menu-item-has-children` and `page_item_has_children` (e.g., the output actually created by Wordpress)  so they won't be overridden by any future updates to the HTML framework
 * Added favicon URL to theme options
 * Added theme option to add a max-width to the `container` class 
 * Added theme option to not display navigation
 * Added additional documentation to clarify what is necessary to get "On This Page" menu to work
 
-__April 28, 2020__ : Upgrade to version 1.2.2: Replaced references to `has-children` class in `_navigation.scss` and `uwfutil.js` with `menu-item-has-children` and `page_item_has_children` (e.g., the output actually created by Wordpress)
+__December 15, 2018__ : Upgrade to version 1.2.4. Updated with version 1.1.4 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which fixed a bug in `uwfUtil.shortenLinks` that triggered link shortening when the link is enclosed within an inline element
+
+__November 13, 2018__ : Upgrade to version 1.2.3. Added `max-width: 100%` to `wp-caption` class so that image captions are constrained to fit inside their containers.
+
+__July 20, 2018__ : Upgrade to version 1.2.2. Updated with Version 1.1.3 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which contains some small extra features on navigation javascript, and implements one of them (choosing element to search for "on this page" content) in Wordpress theme options.
 
 __January 6, 2018__ : Upgrade to version 1.2.1:
 

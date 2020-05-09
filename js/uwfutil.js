@@ -35,6 +35,10 @@
  *   2.3.6 equalizeHeight
  *   2.3.7 scrollToInclude
  *   2.3.8 verticalCenter
+ *   2.3.9 fixOnMaxScroll
+ *     2.3.9.1 fixOnMaxScrollGetData
+ *     2.3.9.2 fixOnMaxScrollPosition
+ *   2.3.10 registerGAevent
  * 3. jQuery triggers
  *  3.1 jQuery(document).ready
  *  3.2 jQuery(window).load
@@ -137,6 +141,16 @@ uwfUtil = {
 		if (uwfOptions.fixFooter) {
 			uwfUtil.fixFooter();
 		}
+        
+        // fix secondary
+        if (uwfOptions.fixSecondary && jQuery('#secondary').length) {
+            uwfUtil.fixOnMaxScroll(
+                '#secondary',
+                uwfOptions.fixSecondaryMax,
+                uwfOptions.fixSecondaryBreakPoint,
+                uwfOptions.fixSecondaryTop
+            );
+        }
 
 		// shorten links
 		if (uwfOptions.shortenLinks) {
@@ -150,7 +164,7 @@ uwfUtil = {
 		
 		// on-this-page navigation
 		if (uwfOptions.onThisPageHeading && uwfOptions.onThisPageNav && uwfOptions.sectionNavigationSelector) {
-			uwfUtil.prepareOnThisPage( uwfOptions.onThisPageHeading, uwfOptions.onThisPageNav, uwfOptions.onThisPageMinimumSections );
+			uwfUtil.prepareOnThisPage( uwfOptions.onThisPageHeading, uwfOptions.onThisPageNav, uwfOptions.onThisPageMinimumSections, uwfOptions.onThisPageContent );
 		}
 
 		// section navigation
@@ -181,18 +195,26 @@ uwfUtil = {
 				});
 				jQuery(this).removeClass('closed').addClass('open').attr('title',uwfText.closeSubmenu);
 				jQuery(this).siblings('ul').addClass('open');
+                jQuery('#navigation-wrapper').addClass('has-open-submenu');
 			} else {
 				jQuery(this).removeClass('open').addClass('closed').attr('title',uwfText.openSubmenu);
 				jQuery(this).siblings('ul').removeClass('open');
+                jQuery('#navigation-wrapper').removeClass('has-open-submenu');
 			}
 		});
-		jQuery('#navigation li.page_item_has_children > .nolink, #navigation li.menu-item-has-children > .nolink').click(function(){
+		jQuery('#navigation li.has-children > .nolink').click(function(){
 			jQuery(this).siblings('.menu-toggle').click();
 		});
 		jQuery('.navigation-header').click(function(){
-			jQuery(this).siblings('.main-menu').children('ul').toggleClass('open');
+            var $mainMenu = jQuery(this).siblings('.main-menu').children('ul');
+            if ($mainMenu.hasClass('open')) { $mainMenu.find('ul').removeClass('open').siblings('.menu-toggle').removeClass('open').addClass('closed').attr('title',uwfText.openSubmenu); }
+			$mainMenu.toggleClass('open');
 		});
-		jQuery('.menu-dismiss').click(function(){ jQuery(this).parent('.main-menu ul').toggleClass('open'); });
+		jQuery('.menu-dismiss').click(function(){
+            var $mainMenu = jQuery(this).parent('.main-menu ul');
+            if ($mainMenu.hasClass('open')) { $mainMenu.find('ul').removeClass('open').siblings('.menu-toggle').removeClass('open').addClass('closed').attr('title',uwfText.openSubmenu); }
+			$mainMenu.toggleClass('open');
+        });
 
 		if (jQuery('#navigation .main-menu > ul').length) {
 			var menuHammer = new Hammer(jQuery('#navigation .main-menu > ul')[0]);
@@ -363,8 +385,15 @@ uwfUtil = {
 			
 			// don't shorten links inside of buttons
 			if (jQuery(this).hasClass('button')) { return; }
+            
+            // find the first "parent" element that is not an inline element
+            // (inline <a> elements inside of inline <li> elements will be 1 pixel wider)
+            var $parent = jQuery(this).parent();
+            while ($parent.css('display') == 'inline') {
+                $parent = $parent.parent();
+            }
 			
-			if (jQuery(this).width() > jQuery(this).parent().width()) {
+			if (jQuery(this).width() > $parent.width()) {
 
 				href = jQuery(this).attr('href');
 				linktext = jQuery(this).text().trim();
@@ -374,7 +403,7 @@ uwfUtil = {
 					url = regex.exec(href);
 					if ((url !== null) && (url.length > 3) && url[2]) {
 						jQuery(this).text(url[2]);
-						if (jQuery(this).width() > jQuery(this).parent().width()) {
+						if (jQuery(this).width() > $parent.width()) {
 							jQuery(this).text(uwfText.link);
 						}
 					} else {
@@ -410,9 +439,10 @@ uwfUtil = {
 	},
 	
 	// 2.2.4 create a navigation structure for the page
-	prepareOnThisPage : function( header, nav, minimumSections ) {
+	prepareOnThisPage : function( header, nav, minimumSections, contentSelector ) {
 		if ( jQuery(nav).length < 1 ) { return; }
-		if ( jQuery('#content '+header).length < minimumSections ) { jQuery(nav).hide(); return; }
+        if ( !contentSelector ) { contentSelector = '#content'; }
+		if ( jQuery(contentSelector+' '+header).length < minimumSections ) { jQuery(nav).hide(); return; }
 		jQuery(nav).append('<ul class="on-this-page-links"/>');
 		var sectionId = '';
 		var sectionText = '';
@@ -421,7 +451,7 @@ uwfUtil = {
 		if (!jQuery('#top').length) {
 			jQuery('#site-wrapper').prepend('<div id="top"/>');
 		}
-		jQuery('#content '+header).each(function(index){
+		jQuery(contentSelector+' '+header).each(function(index){
 			if (jQuery(this).attr('id') && jQuery(this).attr('id').length) {
 				sectionId = jQuery(this).attr('id');
 			} else {
@@ -432,7 +462,16 @@ uwfUtil = {
 			jQuery(nav + ' ul.on-this-page-links').append('<li><a href="#'+sectionId+'" class="'+sectionNavigationClass+'">'+sectionText+'</a></li>');
 			if (index) { jQuery(this).before(sectionNavigationTopLink); }
 		});
-		jQuery('#content').append(sectionNavigationTopLink);
+		jQuery(contentSelector).append(sectionNavigationTopLink);
+        jQuery(window).trigger('resize');
+        
+        jQuery('.on-this-page-mobile .on-this-page-links').prepend('<li class="dismiss menu-dismiss" title="Dismiss menu"></li>');
+        jQuery('.on-this-page-mobile .on-this-page-mobile-trigger').click(function(){
+            jQuery(this).closest('.on-this-page-mobile').find('.on-this-page-links').addClass('open');
+        });
+        jQuery('.on-this-page-mobile .on-this-page-links .dismiss, .on-this-page-mobile .on-this-page-links a').click(function(){
+            jQuery(this).closest('.on-this-page-links').removeClass('open');
+        });
 	},
 
 	// 2.2.5 when elements that match a particular jQuery selector
@@ -591,6 +630,7 @@ uwfUtil = {
 		}
 	},
 
+    // 2.3.8
 	// vertically center the element relative to another element
 	// both may be jQuery objects or jQuery selectors
 	verticalCenter : function(sel, relativeTo) {
@@ -600,6 +640,118 @@ uwfUtil = {
 		var newTop = ( $relativeTo.height() - $el.outerHeight() ) / 2;
 		if (newTop >= 0) { $el.css('top',newTop+'px'); }
 	},
+    
+    // 2.3.9 fixOnMaxScroll
+    // fix an element identified by the jQuery selector "sel"
+    // so that it will not scroll off the page entirely (but will scroll
+    // if its height is greater than the window height).
+    // "maxScroll" controls the maximum amount at the bottom
+    //   (increase this to leave space for a footer).
+    // "breakPoint" - Only implemented when window width is greater than this number
+    //   (defaults to 768, assuming we don't want this behavior on "xs" devices)
+    // "maxTop" controls maximum amount at the top
+    //   (increase this to leave space for a fixed header/navigation)
+    fixOnMaxScroll : function (sel, maxScroll, breakPoint, maxTop) {
+        if (typeof maxScroll !== "number") { maxScroll = 20; }
+        if (typeof breakPoint !== "number") { breakPoint = 768; }
+        if (typeof maxTop !== "number") { maxTop = 20; }
+        jQuery(sel).wrapInner('<div class="fixOnMaxScrollContainer"/>');
+        uwfUtil.fixOnMaxScrollGetData(sel, maxScroll);
+        jQuery(window).scroll(function(){
+            uwfUtil.fixOnMaxScrollPosition( sel, maxScroll, breakPoint, maxTop);
+        });
+    
+        // we also need to run both subscripts whenever window:
+        // 1. finishes loading (image loading can affect height of both window & element)
+        // 2. loads content via ajax (same)
+        // 3. resizes
+        jQuery(window).load(function(){
+            uwfUtil.fixOnMaxScrollGetData(sel, maxScroll);
+            uwfUtil.fixOnMaxScrollPosition( sel, maxScroll, breakPoint, maxTop);
+        });
+        jQuery(document).ajaxComplete(function() {
+            uwfUtil.fixOnMaxScrollGetData(sel, maxScroll);
+            uwfUtil.fixOnMaxScrollPosition( sel, maxScroll, breakPoint, maxTop);
+        });
+        jQuery(window).smartresize(function(){
+            uwfUtil.fixOnMaxScrollGetData(sel, maxScroll);
+            uwfUtil.fixOnMaxScrollPosition( sel, maxScroll, breakPoint, maxTop);
+        });
+    },
+    
+    // 2.3.9.1 helper function to get absolute coordinates of "naturally" positioned element
+    fixOnMaxScrollGetData : function ( sel, maxScroll ) {
+        sel += ' .fixOnMaxScrollContainer';
+        jQuery(sel).removeClass('fixed').css({
+            top : 'auto',
+            left : 'auto',
+            bottom : 'auto',
+            width : 'auto',
+            position : 'relative',
+        });
+        var coordsData = jQuery(sel).offset();
+        coordsData.width = jQuery(sel).outerWidth();
+        coordsData.height = jQuery(sel).outerHeight();
+        coordsData.fixPermanently = ( coordsData.top + coordsData.height + maxScroll ) < jQuery(window).height();
+        coordsData.doNotFix = jQuery(sel).height() > jQuery('#primary').height();
+        jQuery(sel).data(coordsData);
+    },
+
+    // 2.3.9.2 helper function to position element based on current situation
+    fixOnMaxScrollPosition : function( sel, maxScroll, breakPoint, maxTop ) {
+        sel += ' .fixOnMaxScrollContainer';
+        var pos = jQuery(window).scrollTop();
+        var coords = jQuery(sel).data();
+        var maxScrollPos = coords.top + coords.height + maxScroll + parseInt(jQuery('#site-wrapper').css('padding-top')) - jQuery(window).height();
+        if ( (jQuery(window).width() < breakPoint) || coords.doNotFix ) {
+            jQuery(sel).removeClass('fixed').css({
+                top : 'auto',
+                left : 'auto',
+                bottom : 'auto',
+                position : 'relative',
+            });
+        } else if (coords.fixPermanently) {
+            var top = coords.top - pos;
+            if (top < maxTop) { top = maxTop; }
+            jQuery(sel).addClass('fixed').css({
+                top : top,
+                left : coords.left,
+                bottom : 'auto',
+                width : coords.width,
+                position : 'fixed',
+            });
+        } else if (pos > maxScrollPos) {
+            jQuery(sel).addClass('fixed').css({
+                top : 'auto',
+                left : coords.left,
+                bottom : maxScroll,
+                width : coords.width,
+                position : 'fixed',
+            });
+        } else {
+            jQuery(sel).removeClass('fixed').css({
+                top : 'auto',
+                left : 'auto',
+                bottom : 'auto',
+                position : 'relative',
+            });
+        }
+    },
+    
+    // 2.3.10
+    // wrapper function for registering a Google Analytics event
+    // first tests to see if "ga" exists as a function
+    // (helpful in situations where ga is only registered in certain situations: 
+    //  anonymous users, etc.)
+    registerGAevent : function ( category, action, label ) {
+		if (typeof ga == 'function') {
+			ga('send', 'event', {
+				eventCategory : category,
+				eventAction : action,
+				eventLabel : label
+			});
+		}
+	}
 
 }
 
@@ -650,6 +802,10 @@ if (typeof uwfOptions == 'undefined') {
 	uwfOptions = {
 		validateForms : true,
 		fixFooter : true,
+        fixSecondary : true,
+        fixSecondaryMax : 20,
+        fixSecondaryBreakPoint : 768,
+        fixSecondaryTop : 20,
 		shortenLinks : true,
 		shortenLinksSelector : 'a',
 		externalLinks : true,
@@ -659,7 +815,8 @@ if (typeof uwfOptions == 'undefined') {
 		mobileBreakPoint : 768,
 		mobileMenuDirection: 'left',
 		onThisPageHeading : 'h2',
-		onThisPageNav : '#on-this-page',
+        onThisPageContent : '#content',
+		onThisPageNav : '#on-this-page, .on-this-page',
 		onThisPageMinimumSections : 2
 	}
 }

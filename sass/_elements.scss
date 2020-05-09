@@ -99,8 +99,9 @@ input[type="image"] { border: 0; outline: invert none medium; }
 input[type="search"] { -webkit-appearance: none; moz-appearance: none; }
 input, select { max-width: 400px; }
 textarea { display: block; }
-fieldset { margin: 2em 0; border-color: $light-gray; }
-legend { border: 1px solid $light-gray; padding: 2px 15px; background: $very-light-gray; }
+fieldset { margin: 2em 0; border: none; padding: 0; background: $smoke; }
+fieldset ul { padding: 1em; }
+legend { border: none; background-color: $very-light-gray; display: block; font-size: 1em; padding: 0.6667em 1em; width: 100%; border-bottom: 1px solid $light-gray; }
 legend + * { -webkit-margin-top-collapse: separate; }
 input[type="submit"], button, a.button {
   background: $very-dark-gray;
