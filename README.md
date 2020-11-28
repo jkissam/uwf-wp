@@ -69,6 +69,7 @@ __May 9, 2020__ : Upgrade to version 1.2.5:
 * Added favicon URL to theme options
 * Added theme option to add a max-width to the `container` class 
 * Added theme option to not display navigation
+* Changed to pass uwfOptions using `wp_add_inline_script` instead of `wp_localize_script`
 * Added additional documentation to clarify what is necessary to get "On This Page" menu to work
 
 __December 15, 2018__ : Upgrade to version 1.2.4. Updated with version 1.1.4 of [Unwritten Future HTML Framework](https://github.com/jkissam/unwritten_future/), which fixed a bug in `uwfUtil.shortenLinks` that triggered link shortening when the link is enclosed within an inline element
