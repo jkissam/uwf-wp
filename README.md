@@ -23,6 +23,7 @@ _Latest update: 2020-11-28_
 * reset.css
 * Bootstrap grid system (but no other bootstrap styling)
 * option to load [Wordpress dashicons](https://developer.wordpress.org/resource/dashicons/) into front-end theme
+* Triptych "sidebar" region to display widgets in three columns under main content
 * Horizontal Swath "sidebar" region for building parallax-style displays
 * Special "utility" section which will render just above the footer on mobile but which is placed in upper-right-hand corner on tablets & desktop by media query (useful for secondary menus or social media links)
 
@@ -36,6 +37,7 @@ _Latest update: 2020-11-28_
 
 ## Additional optional Javascript functionality:
 
+* fix primary sidebar on scroll
 * create on-the-fly "on this page" navigation based on `h2` elements (or any other header, as set in theme options) in the main blog post
 * shorten links that are wider than their parents (i.e., when long URLs are used as the link text, which can break mobile layouts)
 * open links to external URLs in a new window, optionally excluding by jQuery selectors
