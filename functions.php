@@ -47,6 +47,7 @@
 
 5. shortcodes
 	uwf_html - shortcode for including raw HTML (to evade filter)
+    post_summary - Displays one or more post summaries using WP_Query
 
 6. Admin
 	uwf_register_options,
@@ -100,6 +101,7 @@ $uwf_options = array(
     'max_width' => 0,
 	'highlighted_front_page_only' => 1,
 	'sidebar_front_page_hide' => 0,
+    'triptych_front_page_only' => 1,
 	'swaths_front_page_only' => 1,
 	'primary_class' => 'col-xs-12 col-sm-8',
 	'sidebar_class' => 'col-xs-12 col-sm-4',
@@ -123,6 +125,10 @@ $uwf_options = array(
 	'onThisPageHeading' => 'h2',
 	'onThisPageNav' => '#on-this-page',
 	'onThisPageMinimumSections' => 2,
+    'fixSecondary' => 1,
+    'fixSecondaryMax' => 20,
+    'fixSecondaryBreakPoint' => 768,
+    'fixSecondaryTop' => 20,
 );
 $uwf_options = get_option( 'uwf_options', $uwf_options );
 
@@ -224,7 +230,7 @@ function uwf_widgets_init() {
 
 	// register widgets here
 	// require get_template_directory() . '/inc/widgets.php';
-	// register_widget( 'Webskillet14_Widget' );
+	// register_widget( 'UWF_Widget' );
 
 	register_sidebar( array(
 		'name'          => __( 'Primary Sidebar', 'uwf' ),
@@ -240,6 +246,15 @@ function uwf_widgets_init() {
 		'id'            => 'highlighted',
 		'description'   => __( 'Additional widget area that appears above the content', 'uwf' ),
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
+		'after_widget'  => '</aside>',
+		'before_title'  => '<h2 class="widget-title">',
+		'after_title'   => '</h2>',
+	) );
+	register_sidebar( array(
+		'name'          => __( 'Triptych', 'uwf' ),
+		'id'            => 'triptych',
+		'description'   => __( 'Widgets will appear in three columns, immediately below the content', 'uwf' ),
+		'before_widget' => '<aside id="%1$s" class="widget %2$s col-xs-12 col-sm-4">',
 		'after_widget'  => '</aside>',
 		'before_title'  => '<h2 class="widget-title">',
 		'after_title'   => '</h2>',
@@ -418,12 +433,17 @@ function uwf_scripts() {
 		'onThisPageHeading',
 		'onThisPageNav',
 		'onThisPageMinimumSections',
+        'fixSecondary',
+        'fixSecondaryMax',
+        'fixSecondaryBreakPoint',
+        'fixSecondaryTop',
 	);
 	$options_to_pass_boolean = array(
 		'validateForms',
 		'fixFooter',
 		'shortenLinks',
 		'externalLinks',
+        'fixSecondary',
 	);
 	foreach ($options_to_pass as $option_key) {
 		$uwf_js_options[$option_key] = isset($uwf_options[$option_key]) ? $uwf_options[$option_key] : '';
@@ -558,6 +578,13 @@ function uwf_display_sidebar() {
 }
 endif;
 
+if ( ! function_exists( 'uwf_display_triptych' ) ) :
+function uwf_display_triptych() {
+	global $uwf_options;
+	return $uwf_options['triptych_front_page_only'] ? is_front_page() : true;
+}
+endif;
+
 if ( ! function_exists( 'uwf_display_swaths' ) ) :
 function uwf_display_swaths() {
 	global $uwf_options;
@@ -593,7 +620,7 @@ function uwf_the_site_credit() {
 		$theme_link = $theme_url ? '<a href="' . $theme_url . '">' . $theme_name . '</a>' : '<span>'.$theme_name.'</span>';
 		$output = 'Theme: '.$theme_link;
 		if ($theme_name != 'Unwritten Future') {
-			$output .= ', an <a href="https://github.com/Webskillet/uwf-wp">Unwritten Future</a> child theme';
+			$output .= ', an <a href="https://github.com/jkissam/uwf-wp">Unwritten Future</a> child theme';
 		}
 	}
 	echo '<div id="site-credit">'.$output.'</div>';
@@ -698,7 +725,7 @@ add_shortcode('html', 'uwf_html');
 /**
  * displays one or more summaries using WP_Query
  * attributes can be any of the parameters for WP_Query:
- * https://codex.wordpress.org/Class_Reference/WP_Query#Parameters
+ * https://developer.wordpress.org/reference/classes/wp_query/#parameters
  * EXCEPT fields and those which require associative arrays:
  * tax_query, date_query, meta_query and the orderby array option
  * parameters which take simple arrays should have arguments separated by commas
@@ -794,24 +821,41 @@ function uwf_post_summary( $atts, $content ) {
 		}
 	}
 
-	// special attributes: n, display_thumbnail, post_thumbnail_size, read_more
+	// special attributes: n, display_thumbnail, post_thumbnail_size, read_more, read_more_class, link_title, excerpt
 	if (!isset($params['posts_per_page'])) {
 		$params['posts_per_page'] = isset($atts['n']) ? $atts['n'] : -1;
 	}
+    $link_title = isset($atts['link_title']) ? $atts['link_title'] : false;
 	$display_thumbnail = isset($atts['display_thumbnail']) && $atts['display_thumbnail'];
 	$post_thumbnail_size = isset($atts['post_thumbnail_size']) ? $atts['post_thumbnail_size'] : 'post-thumbnail';
 	$readmore = isset($atts['read_more']) ? $atts['read_more'] : 'Read more';
+	$readmore_class = isset($atts['read_more_class']) ? $atts['read_more_class'] : '';
+    $excerpt = isset($atts['excerpt']) ? $atts['excerpt'] : false;
 
+    $output = '';
 	$r = new WP_Query( $params );
 	if ($r->have_posts()) {
 		while ( $r->have_posts() ) {
 			$r->the_post();
 			$output .= '<div class="post-summary">';
+            if ($link_title) { $output .= '<a href="'.get_the_permalink().'">'; }
 			$output .= '<h2 class="post-summary-title">'.get_the_title().'</h2>';
+            if ($link_title) { $output .= '</a>'; }
 			if ($display_thumbnail) {
 				$output .= '<div class="post-summary-thumbnail">'.get_the_post_thumbnail($r->ID, $post_thumbnail_size).'</div>';
 			}
-			$output .= '<div class="post-summary-content">'.apply_filters( 'the_content', get_the_content($readmore) ).'</div>';
+            if ($excerpt) {
+                $output .= '<div class="post-summary-content">';
+                $output .= apply_filters( 'the_content', get_the_excerpt() );
+                if ($readmore) {
+                    $output .= '<a href="'.get_the_permalink().'"';
+                    if ($readmore_class) { $output .= ' class="'.$readmore_class.'"'; }
+                    $output .= '>'.$readmore.'</a>';
+                }
+                $output .= '</div>';
+            } else {
+                $output .= '<div class="post-summary-content">'.apply_filters( 'the_content', get_the_content($readmore) ).'</div>';
+            }
 			$output .= '</div>';
 		}
 	}
@@ -924,22 +968,28 @@ function uwf_theme_options_page() {
 
 	<tr valign="top"><th scope="row"><label for="logo_url">Logo</label></th>
 	<td>
-	<div id="logo_url_preview" style="width: 100px; float: left; margin-right: 20px;<?php echo $settings['logo_url'] ? '' : ' display: none;'; ?>">
-		<?php if ($settings['logo_url']) : ?><img src="<?php echo esc_url($settings['logo_url']); ?>" style="max-width: 100%;" /><?php endif; ?>
-	</div>
-	<input type="text" id="logo_url" name="uwf_options[logo_url]" value="<?php echo esc_url($settings['logo_url']); ?>" />
-	<div style="margin-bottom: 5px;"><button class="button" id="logo_url_upload_button" style="display: none;"><span class="dashicons dashicons-upload"></span> Upload or choose <?php echo $settings['logo_url'] ? 'another ' : ''; ?>logo</button></div>
-	<div><button class="button" id="logo_url_delete_button"<?php echo $settings['logo_url'] ? '' : ' style="display: none;"'; ?>><span class="dashicons dashicons-no"></span> Remove logo</button></div>
+        <div id="logo_url_container">
+            <span id="logo_url_preview" style="<?php echo $settings['logo_url'] ? '' : ' display: none;'; ?>">
+                <?php if ($settings['logo_url']) : ?><img src="<?php echo esc_url($settings['logo_url']); ?>" style="max-width: 100%;" /><?php endif; ?>
+            </span>
+            <input type="text" id="logo_url" name="uwf_options[logo_url]" value="<?php echo esc_url($settings['logo_url']); ?>" />
+            <button class="button" id="logo_url_upload_button" style="display: none;"><span class="dashicons dashicons-upload"></span> Upload or choose <?php echo $settings['logo_url'] ? 'another ' : ''; ?>logo</button>
+            <button class="button" id="logo_url_delete_button"<?php echo $settings['logo_url'] ? '' : ' style="display: none;"'; ?>><span class="dashicons dashicons-no"></span> Remove logo</button>
+        </div>
 	</td>
 	</tr>
 
 	<tr valign="top"><th scope="row"><label for="favicon_url">Favicon</label></th>
 	<td>
-	<div id="favicon_url_preview" style="width: 16px; float: left; margin-right: 20px;<?php echo $settings['favicon_url'] ? '' : ' display: none;'; ?>">
-		<?php if ($settings['favicon_url']) : ?><img src="<?php echo esc_url($settings['favicon_url']); ?>" style="max-width: 100%;" /><?php endif; ?>
-	</div>
-	<div><button class="button" id="favicon_url_delete_button"<?php echo $settings['favicon_url'] ? '' : ' style="display: none;"'; ?>><span class="dashicons dashicons-no"></span> Remove favicon</button></div>
-    <div style="clear: both;<?php echo $settings['favicon_url'] ? ' display: none;' : ''; ?>"><input type="text" id="favicon_url" name="uwf_options[favicon_url]" value="<?php echo esc_url($settings['favicon_url']); ?>" /></div>
+        <div id="favicon_url_container">
+            <span id="favicon_url_preview" style="<?php echo $settings['favicon_url'] ? '' : 'display: none;'; ?>">
+                <?php if ($settings['favicon_url']) : ?><img src="<?php echo esc_url($settings['favicon_url']); ?>" style="max-width: 100%;" /><?php endif; ?>
+            </span>
+            <button class="button" id="favicon_url_delete_button"<?php echo $settings['favicon_url'] ? '' : ' style="display: none;"'; ?>>
+                <span class="dashicons dashicons-no"></span> Remove favicon
+            </button>
+            <input type="text" id="favicon_url" name="uwf_options[favicon_url]" value="<?php echo esc_url($settings['favicon_url']); ?>" />
+        </div>
 	</td>
 	</tr>
 
@@ -960,6 +1010,7 @@ function uwf_theme_options_page() {
 		<td>
 			<p><input type="checkbox" id="highlighted_front_page_only" name="uwf_options[highlighted_front_page_only]" value="1" <?php checked( true, $settings['highlighted_front_page_only'] ); ?> /> <label for="highlighted_front_page_only">Display <em>highlighted</em> "sidebar" on front page only</label></p>
 			<p><input type="checkbox" id="sidebar_front_page_hide" name="uwf_options[sidebar_front_page_hide]" value="1" <?php checked( true, $settings['sidebar_front_page_hide'] ); ?> /> <label for="sidebar_front_page_hide">Hide main sidebar on the front page</label></p>
+			<p><input type="checkbox" id="triptych_front_page_only" name="uwf_options[triptych_front_page_only]" value="1" <?php checked( true, $settings['triptych_front_page_only'] ); ?> /> <label for="triptych_front_page_only">Display <em>triptych</em> "sidebar" on front page only</label></p>
 			<p><input type="checkbox" id="swaths_front_page_only" name="uwf_options[swaths_front_page_only]" value="1" <?php checked( true, $settings['swaths_front_page_only'] ); ?> /> <label for="swaths_front_page_only">Display <em>swaths</em> "sidebar" on front page only</label></p>
 			<p><label for="primary_class">Primary Class</label> <input id="primary_class" name="uwf_options[primary_class]" type="text" value="<?php esc_attr_e($settings['primary_class']); ?>" /></p>
 			<p><label for="sidebar_class">Sidebar Class</label> <input id="sidebar_class" name="uwf_options[sidebar_class]" type="text" value="<?php esc_attr_e($settings['sidebar_class']); ?>" /></p>
@@ -992,14 +1043,14 @@ function uwf_theme_options_page() {
 		<th scope="row">Links</th>
 		<td>
 			<p><input type="checkbox" id="shortenLinks" name="uwf_options[shortenLinks]" value="1" <?php checked( true, $settings['shortenLinks'] ); ?> /> <label for="shortenLinks">Shorten links to fit within their containers</label></p>
-			<p><label for="shortenLinksSelector">jQuery selector for links:</label> <input type="text" id="sectionNavigationSelector" name="uwf_options[shortenLinksSelector]" value="<?php esc_attr_e($settings['shortenLinksSelector']); ?>" /></p>
+			<p><label for="shortenLinksSelector">jQuery selector for links to shorten:</label> <input type="text" id="sectionNavigationSelector" name="uwf_options[shortenLinksSelector]" value="<?php esc_attr_e($settings['shortenLinksSelector']); ?>" /></p>
 			<p><input type="checkbox" id="externalLinks" name="uwf_options[externalLinks]" value="1" <?php checked( true, $settings['externalLinks'] ); ?> /> <label for="externalLinks">Open external links in a new window</label></p>
 			<p><label for="externalLinksExceptions">jQuery selector for external links that should <strong>not</strong> be opened in a new window:</label> <input type="text" id="externalLinksExceptions" name="uwf_options[externalLinksExceptions]" value="<?php esc_attr_e($settings['externalLinksExceptions']); ?>" /></p>
 		</td>
 	</tr>
 	
 	<tr valign="top">
-		<th scope="row">Scrolling in-page navigation</th>
+		<th scope="row">Scrolling in-page<br />navigation</th>
 		<td>
 			<p><label for="sectionNavigationSelector">jQuery selector for anchor links:</label> <input type="text" id="sectionNavigationSelector" name="uwf_options[sectionNavigationSelector]" value="<?php esc_attr_e($settings['sectionNavigationSelector']); ?>" /></p>
 			<p><label for="sectionNavigationPadding">Top-of-page padding (in pixels):</label> <input type="text" id="sectionNavigationPadding" name="uwf_options[sectionNavigationPadding]" value="<?php esc_attr_e($settings['sectionNavigationPadding']); ?>" /></p>
@@ -1022,6 +1073,18 @@ function uwf_theme_options_page() {
 	       <p><em>Note: "On This Page" menu will only work if you add the element to contain the menu somewhere on your site (e.g., using a Custom HTML widget)</em></p>
 		</td>
 	</tr>
+        
+	
+	<tr valign="top">
+		<th scope="row">Primary Sidebar</th>
+		<td>
+			<p><input type="checkbox" id="fixSecondary" name="uwf_options[fixSecondary]" value="1" <?php checked( true, $settings['fixSecondary'] ); ?> /> <label for="fixSecondary">Fix primary sidebar on scroll</label></p>
+			<p><label for="fixSecondaryMax">Maximum pixels at the bottom (increase to leave space for a footer):</label> <input type="text" id="fixSecondaryMax" name="uwf_options[fixSecondaryMax]" value="<?php esc_attr_e($settings['fixSecondaryMax']); ?>" /></p>
+			<p><label for="fixSecondaryBreakPoint">Only implement when window width is greater than</label> <input type="text" id="fixSecondaryBreakPoint" name="uwf_options[fixSecondaryBreakPoint]" value="<?php esc_attr_e($settings['fixSecondaryBreakPoint']); ?>" /> pixels</p>
+			<p><label for="fixSecondaryTop">Maximum pixels at the top (increase to leave space for a fixed header/navigation):</label> <input type="text" id="fixSecondaryTop" name="uwf_options[fixSecondaryTop]" value="<?php esc_attr_e($settings['fixSecondaryTop']); ?>" /></p>
+		</td>
+	</tr>
+        
 	
 	<tr valign="top">
 		<th scope="row">Footer</th>
@@ -1080,7 +1143,7 @@ function uwf_theme_options_help() {
 	$screen = get_current_screen();
 	
 	$screen->add_help_tab( array(
-		'id'       => 'uwf-theme-sidebars',
+		'id'       => 'uwf-theme-max-width',
 		'title'    => __( 'Max container width' ),
 		'content'  => '
 <p>By default, the <a href="https://getbootstrap.com/docs/3.3/css/#grid" target="_blank">Bootstrap 3 grid classes</a> that control layout for this theme will expand the width of the "container" class (which defines the maximum width of the menus, header, content and footer) to 760, 980 and 1180 pixels based on the width of the screen. However, in many cases, especially for sites that don\'t display a sidebar, that can make the text too wide. Setting the "Max Container Width" to a number smaller than 1180 (760 or 980 are recommended) will keep the content from spreading too wide. Setting it to zero keeps the default behavior.</p>
@@ -1101,7 +1164,7 @@ function uwf_theme_options_help() {
 		'id'       => 'uwf-theme-sidebars',
 		'title'    => __( 'Sidebars' ),
 		'content'  => '
-<p>The "Highlighted" and "Swaths" sidebar regions are, by default, shown only on the front page, but unchecking those options will display them on interior pages.</p>
+<p>The "Highlighted", "Triptych" and "Swaths" sidebar regions are, by default, shown only on the front page, but unchecking those options will display them on interior pages.</p>
 <p>Checking the "hide sidebar on the front page" will display the "sidebar" region only on interior pages.</p>
 <p>The "primary class" and "sidebar class" use <a href="https://getbootstrap.com/docs/3.3/css/#grid" target="_blank">Bootstrap 3 grid classes</a> to control the layout of the <code>#primary</code> (content) and <code>#secondary</code> (sidebar) elements, <em>if there is sidebar content</em>. If there is no sidebar content (because there are no widgets assigned to the region & no secondary navigation menu), or if the sidebar is hidden on the front page, the <code>#primary</code> element will be assigned the <code>col-xs-12</code> class.</p>
 <p><strong>Note:</strong> These may not work, or produce unpredictable results, if a child theme has altered the sidebar structure.</p>
@@ -1136,9 +1199,11 @@ function uwf_validate_options( $input ) {
 		'dashicons',
 		'highlighted_front_page_only',
 		'sidebar_front_page_hide',
+        'triptych_front_page_only',
 		'swaths_front_page_only',
         'hide_navigation',
-		'validateForms', 
+		'validateForms',
+        'fixSecondary',
 		'fixFooter',
 		'shortenLinks',
 		'externalLinks',
@@ -1151,7 +1216,7 @@ function uwf_validate_options( $input ) {
 	}
 	
 	// validate integer inputs
-	$integers = array( 'max_width', 'sectionNavigationPadding', 'mobileBreakPoint', 'onThisPageMinimumSections' );
+	$integers = array( 'max_width', 'sectionNavigationPadding', 'mobileBreakPoint', 'onThisPageMinimumSections','fixSecondaryMax', 'fixSecondaryBreakPoint', 'fixSecondaryTop' );
 	foreach ($integers as $integer) {
 		$input[$integer] = intval($input[$integer]);
 	}

@@ -10,6 +10,16 @@
 		</div><!-- #main -->
 	</div>
 
+	<?php if ( uwf_display_triptych() && is_active_sidebar( 'triptych' ) ) : ?>
+	<div id="triptych-wrapper" class="section-wrapper">
+		<div id="triptych" class="section widget-area clearfix container">
+			<div id="triptych-inner" class="section-inner row">
+				<?php dynamic_sidebar( 'triptych' ); ?>
+			</div>
+		</div>
+	</div>
+	<?php endif; ?>
+
 	<?php if ( uwf_display_swaths() && is_active_sidebar( 'swaths' ) ) : ?>
 	<div id="swaths-wrapper" class="widget-area">
 		<?php dynamic_sidebar( 'swaths' ); ?>
@@ -47,7 +57,7 @@
 <div id="modals-wrapper">
 	<div id="modals" class="modals widget-area" role="complementary">
 		<?php dynamic_sidebar( 'modals' ); ?>
-		<div id="search" class="widget">
+		<div id="search" class="widget modal">
 			<h2><?php _e('Search','uwf'); ?></h2>
 			<div class="search-box">
 				<?php get_search_form(); ?>

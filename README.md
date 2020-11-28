@@ -2,15 +2,16 @@
 
 Wordpress theme based on [Unwritten Future](https://github.com/jkissam/unwritten_future/) front-end framework
 
-_Version 1.2.3_  
-_Latest update: 2020-05-09_
+_Version 1.2.6_  
+_Latest update: 2020-11-28_
 
 ## Shortcodes
 
 ### [post-summary]
 
 * Displays one or more post summaries using WP_Query
-* Attributes can be any of the [parameters for WP_Query](https://codex.wordpress.org/Class_Reference/WP_Query#Parameters) EXCEPT fields and those which require associative arrays: `tax_query`, `date_query`, `meta_query` and the `orderby` array option
+* Attributes can be any of the [parameters for WP_Query](https://developer.wordpress.org/reference/classes/wp_query/#parameters) EXCEPT fields and those which require associative arrays: `tax_query`, `date_query`, `meta_query` and the `orderby` array option
+* Also includes the following custom attributes: `n` (number of posts to display), `display_thumbnail` (boolean), `post_thumbnail_size`, `read_more` (text for "read more" link), `read_more_class`, `link_title` (boolean for whether to link title to permalink), and `excerpt` (boolean to force display of excerpt)
 * Parameters which take simple arrays should have arguments separated by commas
 
 ### [html]
@@ -49,6 +50,15 @@ _Latest update: 2020-05-09_
 * smartresize event
 
 ## Changelog
+
+__November 28, 2020__ : Upgrade to version 1.2.6:
+
+* Added new `triptych` widget area, which displays widgets in three columns immediately under content, with option to only show on front page
+* Implemented option to fix primary sidebar on scroll
+* Added new custom attributes to `post-summary` shortcode: `read_more_class`, `link_title`, and `excerpt`
+* Improved UX of Theme Options page
+* Fixed bug with "Remove Favicon" button
+* Fixed bug which caused search box to display when any other modal is opened
 
 __May 9, 2020__ : Upgrade to version 1.2.5:
 
